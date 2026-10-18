@@ -1,0 +1,1412 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f3ec">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Carie AI">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml" href="./icon.svg">
+  <title>Carie AI — Career exploration demo</title>
+  <style>
+    :root {
+      --ink: #22382f;
+      --muted: #5a6e66;
+      --green: #1f6b55;
+      --green-dark: #174f40;
+      --mint: #e7f0ea;
+      --mint-2: #f3f7f2;
+      --paper: #faf8f3;
+      --canvas: #f1f0e9;
+      --line: #e5e5dc;
+      --peach: #f3d4b8;
+      --gold: #d4a15e;
+      --white: #fff;
+      --shadow: 0 24px 70px rgba(27, 43, 36, .12);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--canvas);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--canvas); }
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid #85b7a5; outline-offset: 2px; }
+    .studio { min-height: 100vh; max-width: 1500px; margin: 0 auto; padding: 18px 26px 22px; }
+    .studio-head { display: flex; align-items: center; justify-content: space-between; gap: 18px; min-height: 52px; margin-bottom: 14px; }
+    .brand-lockup { display: flex; align-items: center; gap: 12px; }
+    .brand-mark { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 13px; color: #fff; background: var(--green); font-size: 19px; font-weight: 750; letter-spacing: -.08em; }
+    .brand-name { font-size: 16px; font-weight: 750; letter-spacing: -.04em; }
+    .brand-sub { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+    .demo-label { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid #dfe5dd; border-radius: 999px; color: #50665c; background: #f8faf6; font-size: 11px; }
+    .role-switch { display: inline-flex; align-items: center; gap: 3px; border: 1px solid #dfe4dc; border-radius: 12px; padding: 3px; background: #fafbf7; }
+    .role-tab { min-height: 31px; border: 0; border-radius: 9px; padding: 6px 11px; color: #75827c; background: transparent; font-size: 10px; font-weight: 650; }
+    .role-tab.active { color: #235c49; background: #e8f1e8; box-shadow: 0 1px 2px rgba(27,53,40,.08); }
+    .role-current { padding: 0 7px; color: #405d50; font-size: 10px; font-weight: 700; white-space: nowrap; }
+    .head-tools { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+    .lang-toggle { display: inline-flex; align-items: center; gap: 5px; min-height: 39px; border: 1px solid #dfe4dc; border-radius: 12px; padding: 3px 11px; color: #405d50; background: #fafbf7; font-size: 10px; font-weight: 700; white-space: nowrap; cursor: pointer; }
+    .lang-toggle small { color: #75827c; font-size: 10px; font-weight: 650; }
+    .lang-toggle[aria-pressed="true"] { border-color: #c9dccd; background: #e8f1e8; }
+    .registration-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 17px; }
+    .registration-choice { min-height: 94px; border: 1px solid #e1e6dc; border-radius: 13px; padding: 13px; color: var(--ink); background: #fff; text-align: left; }
+    .registration-choice.selected { border-color: #6c9d80; background: #edf5ed; box-shadow: inset 0 0 0 1px #6c9d80; }
+    .registration-choice strong { display: block; font-size: 12px; }
+    .registration-choice small { display: block; margin-top: 5px; color: #718078; font-size: 9px; line-height: 1.45; }
+    .saved-profiles { display: grid; gap: 8px; margin-top: 10px; }
+    .saved-profile { display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid #e3e7df; border-radius: 11px; padding: 10px; background: #fff; }
+    .saved-profile strong { display: block; color: #375549; font-size: 10px; }
+    .saved-profile small { display: block; margin-top: 3px; color: #7b8880; font-size: 9px; }
+    .saved-profile .small-button { flex: 0 0 auto; }
+    .demo-dot { width: 7px; height: 7px; border-radius: 50%; background: #6da88b; box-shadow: 0 0 0 3px #e0efe3; }
+    .studio-grid { min-height: calc(100vh - 108px); display: grid; grid-template-columns: minmax(185px, 240px) minmax(360px, 1fr) minmax(220px, 280px); align-items: center; gap: 28px; }
+    .side-card { padding: 21px 19px; border: 1px solid #e3e4db; border-radius: 20px; background: rgba(251, 250, 245, .82); }
+    .side-kicker { margin: 0 0 10px; color: #71827a; font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    .side-card h2 { margin: 0; font-size: 20px; line-height: 1.18; letter-spacing: -.045em; font-weight: 700; }
+    .side-card p { margin: 11px 0 0; color: #66746d; font-size: 12px; line-height: 1.65; }
+    .route-list { display: grid; gap: 13px; margin: 21px 0 0; padding: 0; list-style: none; }
+    .route-list li { display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: start; color: #697a72; font-size: 11px; line-height: 1.45; }
+    .route-num { width: 23px; height: 23px; display: grid; place-items: center; border-radius: 50%; color: #577468; background: #e9f0e9; font-size: 10px; font-weight: 700; }
+    .route-list strong { display: block; margin-bottom: 1px; color: #31483e; font-size: 11px; }
+    .side-divider { height: 1px; margin: 19px 0; background: var(--line); }
+    .note-pill { display: inline-block; margin: 12px 5px 0 0; padding: 6px 9px; border-radius: 999px; color: #527168; background: #edf4ed; font-size: 10px; }
+    .small-button { padding: 0; border: 0; color: #71847b; background: transparent; font-size: 10px; text-decoration: underline; text-underline-offset: 3px; }
+    .phone-wrap { display: flex; justify-content: center; align-items: center; min-width: 0; }
+    .mentor-wrap { display: none; width: 100%; max-width: 1280px; margin: 0 auto; }
+    .mentor-wrap[hidden] { display: none !important; }
+    .studio-grid.mentor-active { min-height: calc(100vh - 108px); grid-template-columns: minmax(0, 1fr); align-items: start; }
+    .studio-grid.mentor-active > .side-card, .studio-grid.mentor-active > .phone-wrap { display: none; }
+    .studio-grid.mentor-active > .mentor-wrap { display: block; grid-column: 1; }
+    .workspace { border: 1px solid #e0e4db; border-radius: 22px; padding: 24px; background: #fbfaf5; box-shadow: 0 12px 42px rgba(27,43,36,.07); }
+    .workspace-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 23px; }
+    .workspace-head h1 { margin: 0; font-size: 27px; letter-spacing: -.05em; }
+    .workspace-head p { max-width: 620px; margin: 7px 0 0; color: #718078; font-size: 12px; line-height: 1.55; }
+    .partner-tag { display: inline-flex; align-items: center; gap: 7px; border: 1px solid #dce6dc; border-radius: 999px; padding: 8px 11px; color: #537467; background: #f5f8f2; font-size: 10px; white-space: nowrap; }
+    .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 18px; }
+    .metric-card { min-height: 97px; border: 1px solid #e7e9e1; border-radius: 15px; padding: 14px; background: #fff; }
+    .metric-card span { display: block; color: #78857e; font-size: 10px; }
+    .metric-card strong { display: block; margin-top: 8px; color: #284d3f; font-size: 24px; letter-spacing: -.05em; }
+    .metric-card small { display: block; margin-top: 3px; color: #8a958f; font-size: 9px; }
+    .workspace-columns { display: grid; grid-template-columns: minmax(0,1.45fr) minmax(260px,.75fr); gap: 16px; align-items: start; }
+    .panel { border: 1px solid #e5e8df; border-radius: 16px; padding: 16px; background: #fff; }
+    .panel + .panel { margin-top: 14px; }
+    .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .panel-head h2 { margin: 0; font-size: 15px; letter-spacing: -.03em; }
+    .panel-head p { margin: 4px 0 0; color: #78857e; font-size: 10px; line-height: 1.45; }
+    .toolbar-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    .toolbar-row .text-input { width: auto; min-width: 195px; padding: 9px 11px; font-size: 10px; }
+    .filter-button { min-height: 31px; border: 1px solid #e0e5dc; border-radius: 9px; padding: 6px 10px; color: #65776d; background: #fff; font-size: 9px; }
+    .filter-button.active { border-color: #b3cbb8; color: #2f6b53; background: #eef5ed; }
+    .student-table { width: 100%; border-collapse: collapse; }
+    .student-table th { padding: 9px 8px; border-bottom: 1px solid #e8ebe4; color: #89938d; font-size: 9px; font-weight: 650; text-align: left; }
+    .student-table td { padding: 11px 8px; border-bottom: 1px solid #eef0ea; color: #43574d; font-size: 10px; vertical-align: middle; }
+    .student-table tr:last-child td { border-bottom: 0; }
+    .student-name { display: flex; align-items: center; gap: 9px; color: #2f493d; font-weight: 700; }
+    .student-avatar { width: 29px; height: 29px; display: grid; place-items: center; border-radius: 50%; color: #5d725f; background: #e9eee4; font-size: 9px; }
+    .status-chip { display: inline-flex; align-items: center; gap: 5px; border-radius: 99px; padding: 5px 8px; font-size: 9px; font-weight: 650; white-space: nowrap; }
+    .status-chip.green { color: #3e7358; background: #e8f3e9; }
+    .status-chip.amber { color: #8a6630; background: #fbf1d9; }
+    .status-chip.red { color: #965a4f; background: #f8e9e4; }
+    .status-chip.gray { color: #66766d; background: #eff1eb; }
+    .table-link { border: 0; padding: 0; color: #32715a; background: transparent; font-size: 10px; font-weight: 700; }
+    .mini-progress { width: 74px; height: 5px; display: inline-block; overflow: hidden; border-radius: 99px; background: #edf0e9; vertical-align: middle; }
+    .mini-progress i { height: 100%; display: block; border-radius: inherit; background: #6e9f7e; }
+    .summary-box { border: 1px solid #e2e9df; border-radius: 13px; padding: 13px; background: #f5f8f2; }
+    .summary-box h3 { margin: 8px 0 5px; color: #365746; font-size: 12px; }
+    .summary-box p { margin: 0; color: #68776e; font-size: 10px; line-height: 1.55; }
+    .summary-box small { display: block; margin-top: 9px; color: #839087; font-size: 9px; }
+    .workspace .callout { margin-top: 10px; }
+    .detail-top { display: flex; align-items: center; gap: 11px; margin: 12px 0 16px; }
+    .detail-top .student-avatar { width: 44px; height: 44px; font-size: 13px; }
+    .detail-top h2 { margin: 0; font-size: 20px; }
+    .detail-top p { margin: 3px 0 0; color: #7b8881; font-size: 10px; }
+    .detail-kpis { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px; margin: 12px 0; }
+    .detail-kpi { border: 1px solid #e8ebe3; border-radius: 11px; padding: 10px; background: #fcfcf8; }
+    .detail-kpi span { color: #7c8981; font-size: 9px; }
+    .detail-kpi strong { display: block; margin-top: 5px; color: #355849; font-size: 16px; }
+    .note-editor { min-height: 72px; }
+    .mobile-card-link { display: block; margin-top: 14px; border: 1px solid #e3e7de; border-radius: 13px; padding: 13px; background: #fff; }
+    .mobile-card-link h3 { margin: 0; }
+    .mobile-card-link p { margin: 5px 0 0; color: #738078; font-size: 10px; line-height: 1.5; }
+    .phone-frame { width: 402px; height: min(822px, calc(100vh - 116px)); min-height: 630px; padding: 9px; border: 1px solid #3a4841; border-radius: 44px; background: #17231e; box-shadow: var(--shadow), inset 0 0 0 2px #405148; }
+    .phone-screen { position: relative; display: flex; flex-direction: column; height: 100%; overflow: hidden; border-radius: 35px; background: var(--paper); }
+    .app-topbar { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; min-height: 42px; padding: 16px 22px 10px; background: var(--paper); }
+    .app-brand { color: #527267; font-size: 12px; letter-spacing: .03em; }
+    .app-top-tag { color: #668176; font-size: 9px; }
+    .screen-scroll { flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; padding: 2px 22px 24px; scrollbar-width: thin; scrollbar-color: #dce2da transparent; }
+    .screen-scroll::-webkit-scrollbar { width: 5px; }
+    .screen-scroll::-webkit-scrollbar-thumb { border-radius: 9px; background: #dce2da; }
+    .progress-track { height: 4px; margin: 0 0 19px; overflow: hidden; border-radius: 99px; background: #e6e9e1; }
+    .progress-fill { height: 100%; border-radius: inherit; background: #4e8a73; transition: width .25s ease; }
+    .eyebrow { margin: 0 0 9px; color: #688278; font-size: 9px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+    h1, h2, h3, p { overflow-wrap: anywhere; }
+    .screen-scroll h1 { margin: 0 0 11px; font-size: 25px; line-height: 1.08; font-weight: 720; letter-spacing: -.055em; }
+    .screen-scroll h2 { margin: 0 0 8px; font-size: 19px; line-height: 1.15; font-weight: 720; letter-spacing: -.04em; }
+    .screen-scroll h3 { margin: 0 0 5px; font-size: 13px; line-height: 1.25; font-weight: 700; }
+    .lead { margin: 0; color: #68766e; font-size: 12px; line-height: 1.6; }
+    .microcopy { margin: 8px 0 0; color: #87918b; font-size: 10px; line-height: 1.5; }
+    .field-label { display: block; margin: 21px 0 7px; color: #43594f; font-size: 10px; font-weight: 700; }
+    .text-input, .text-area { width: 100%; border: 1px solid #e0e4db; border-radius: 11px; padding: 12px 13px; color: var(--ink); background: #fff; font-size: 12px; }
+    .select-input { appearance: auto; }
+    .text-input::placeholder, .text-area::placeholder { color: #abb4ae; }
+    .text-area { min-height: 74px; resize: vertical; }
+    .btn { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 41px; border: 0; border-radius: 11px; padding: 10px 13px; color: #fff; background: var(--green); font-size: 11px; font-weight: 700; transition: transform .15s ease, background .15s ease; }
+    .btn:hover { background: var(--green-dark); transform: translateY(-1px); }
+    .btn:disabled { cursor: not-allowed; opacity: .4; transform: none; }
+    .btn.secondary { border: 1px solid #dfe4db; color: #587169; background: #fff; }
+    .btn.secondary:hover { background: #f4f7f2; }
+    .btn.ghost { min-height: 32px; border: 1px solid transparent; color: #688176; background: transparent; font-weight: 600; }
+    .btn-row { display: flex; gap: 9px; margin-top: 18px; }
+    .btn-row .btn { flex: 1; }
+    .bottom-actions { margin-top: 19px; }
+    .welcome-art { position: relative; height: 166px; display: grid; place-items: center; margin: 5px 0 20px; overflow: hidden; border-radius: 18px; background: linear-gradient(135deg, #f7e2cd, #e5efe5 77%); }
+    .sun { position: absolute; top: 19px; right: 35px; width: 33px; height: 33px; border-radius: 50%; background: #f2c891; opacity: .88; }
+    .art-window { position: absolute; right: 22px; bottom: 25px; width: 82px; height: 83px; border: 7px solid rgba(255,255,255,.72); border-bottom: 0; border-radius: 12px 12px 0 0; background: rgba(251,249,240,.55); }
+    .art-person { position: absolute; left: 65px; bottom: 28px; width: 57px; height: 76px; border-radius: 30px 30px 9px 9px; background: #3d816a; }
+    .art-person:before { content: ""; position: absolute; left: 11px; top: -29px; width: 36px; height: 38px; border-radius: 48% 48% 45% 45%; background: #d99c73; box-shadow: inset 0 8px 0 #293d38; }
+    .art-person:after { content: ""; position: absolute; left: 21px; top: -12px; width: 16px; height: 5px; border-left: 2px solid #293d38; border-right: 2px solid #293d38; }
+    .art-caption { position: absolute; left: 17px; bottom: 12px; color: #6a756d; font-size: 8px; letter-spacing: .04em; }
+    .choice-grid { display: grid; gap: 9px; margin-top: 17px; }
+    .choice-card { position: relative; width: 100%; display: block; border: 1px solid #e3e5dc; border-radius: 12px; padding: 12px 13px; color: var(--ink); background: #fff; text-align: left; }
+    .choice-card:hover { border-color: #9bb9a7; background: #fbfdf9; }
+    .choice-card.selected { border: 1.5px solid #3d8067; background: #edf5ee; box-shadow: inset 0 0 0 1px rgba(61,128,103,.08); }
+    .choice-card .choice-title { display: block; padding-right: 16px; font-size: 11px; font-weight: 700; line-height: 1.35; }
+    .choice-card .choice-copy { display: block; margin-top: 4px; color: #718078; font-size: 10px; line-height: 1.45; }
+    .choice-mark { position: absolute; top: 13px; right: 12px; width: 12px; height: 12px; border: 1px solid #cbd4cc; border-radius: 50%; }
+    .choice-card.selected .choice-mark { border: 4px solid #398064; background: #fff; }
+    .choice-icon { display: inline-grid; place-items: center; width: 30px; height: 30px; margin-right: 8px; border-radius: 10px; color: #477a65; background: #e9f1e8; vertical-align: middle; font-size: 13px; font-weight: 700; }
+    .callout { margin-top: 14px; border: 1px solid #e4e9df; border-radius: 12px; padding: 11px 12px; color: #5f756a; background: #f0f5ed; font-size: 10px; line-height: 1.5; }
+    .callout strong { color: #426454; }
+    .field-card { padding: 14px; }
+    .field-head { display: flex; align-items: center; gap: 9px; }
+    .field-head .choice-mark { position: static; flex: 0 0 auto; margin-left: auto; }
+    .tag { display: inline-flex; align-items: center; border-radius: 999px; padding: 5px 8px; color: #5d776c; background: #edf4ed; font-size: 9px; font-weight: 650; }
+    .story-progress { display: flex; gap: 4px; margin: 10px 0 16px; }
+    .story-progress i { height: 3px; flex: 1; border-radius: 99px; background: #e5e9e1; }
+    .story-progress i.done { background: #5e9a7e; }
+    .scene-card { position: relative; min-height: 140px; overflow: hidden; margin: 2px 0 17px; border-radius: 16px; background: linear-gradient(135deg, #f2d3b3 0%, #f6e5d3 55%, #dce9dd 100%); }
+    .scene-window { position: absolute; top: 16px; right: 15px; width: 107px; height: 92px; border: 7px solid rgba(255,255,255,.73); border-bottom: 0; border-radius: 12px 12px 0 0; background: rgba(255,255,255,.33); }
+    .scene-desk { position: absolute; bottom: 19px; left: 20px; width: 178px; height: 15px; border-radius: 8px; background: #bb936a; box-shadow: 4px 12px 0 -4px #8f7257; }
+    .scene-laptop { position: absolute; bottom: 34px; left: 76px; width: 54px; height: 38px; border: 4px solid #698777; border-bottom-width: 8px; border-radius: 6px; background: #f8faf2; }
+    .scene-plant { position: absolute; right: 35px; bottom: 18px; width: 15px; height: 35px; border-radius: 50% 50% 2px 2px; background: #55836b; transform: rotate(-12deg); }
+    .scene-person { position: absolute; left: 31px; bottom: 30px; width: 31px; height: 42px; border-radius: 18px 18px 4px 4px; background: #29735d; }
+    .scene-person:before { content: ""; position: absolute; left: 5px; top: -19px; width: 22px; height: 23px; border-radius: 50%; background: #d99b72; box-shadow: inset 0 5px 0 #34453e; }
+    .scene-label { position: absolute; top: 11px; left: 12px; padding: 5px 8px; border-radius: 99px; color: #607168; background: rgba(255,255,255,.76); font-size: 8px; font-weight: 700; }
+    .decision-label { margin: 0 0 8px; color: #638075; font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .pause-link { display: block; margin: 9px auto 0; border: 0; color: #778780; background: transparent; font-size: 10px; }
+    .word-help { display: inline-flex; align-items: center; gap: 5px; min-height: 28px; margin-top: 11px; border: 0; border-radius: 8px; padding: 5px 8px; color: #517668; background: #eaf2eb; font-size: 9px; font-weight: 700; }
+    .skill-stack { display: grid; gap: 9px; margin-top: 15px; }
+    .skill-card { border: 1px solid #e5e8df; border-radius: 12px; padding: 12px; background: #fff; }
+    .skill-title { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; color: #385b4d; font-size: 11px; font-weight: 700; }
+    .skill-dot { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 7px; color: #538269; background: #edf3e9; font-size: 10px; }
+    .skill-card p { margin: 0; color: #6c7971; font-size: 10px; line-height: 1.55; }
+    .scale-card { display: flex; align-items: flex-start; gap: 8px; min-height: 48px; padding: 10px 11px; }
+    .scale-card .choice-title { font-size: 10px; }
+    .scale-card .choice-copy { margin: 1px 0 0; font-size: 9px; }
+    .passport-hero { padding: 15px; border: 1px solid #e1e7dd; border-radius: 15px; background: linear-gradient(135deg, #e8f1e9, #f7f3e9); }
+    .passport-badge { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 11px; color: #4a8067; background: #dcebdd; font-size: 17px; }
+    .passport-meta { display: flex; justify-content: space-between; align-items: center; gap: 7px; margin-bottom: 12px; }
+    .list-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #eef0ea; }
+    .list-row:last-child { border-bottom: 0; }
+    .row-icon { flex: 0 0 29px; width: 29px; height: 29px; display: grid; place-items: center; border-radius: 9px; color: #5e8872; background: #edf3eb; font-size: 12px; }
+    .task-toggle { flex: 0 0 28px; width: 28px; height: 28px; display: grid; place-items: center; border: 1px solid #dce4da; border-radius: 8px; color: #527866; background: #fff; font-size: 12px; }
+    .task-toggle.done { border-color: #dce9dd; color: #fff; background: #5e9777; }
+    .task-actions { display: flex; align-items: center; gap: 7px; margin-left: auto; }
+    .task-meta { color: #849087; font-size: 9px; white-space: nowrap; }
+    .task-row { align-items: center; }
+    .task-schedule { margin-left: auto; }
+    .task-day { width: auto; max-width: 82px; border: 1px solid #e2e7de; border-radius: 8px; padding: 6px 5px; color: #64786c; background: #fff; font-size: 9px; }
+    .task-add-row { display: grid; grid-template-columns: 92px 1fr; gap: 8px; margin-top: 8px; }
+    .task-add-row .text-input { padding: 10px; font-size: 10px; }
+    .task-add-row .btn { min-height: 38px; font-size: 10px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .list-row strong { display: block; font-size: 10px; }
+    .list-row small { display: block; margin-top: 3px; color: #7a8780; font-size: 9px; line-height: 1.35; }
+    .mentor-card { display: flex; gap: 11px; align-items: flex-start; border: 1px solid #e2e7dd; border-radius: 13px; padding: 13px; background: #f5f7f1; }
+    .mentor-avatar { flex: 0 0 33px; width: 33px; height: 33px; display: grid; place-items: center; border-radius: 50%; color: #75533e; background: #f1ddc5; font-size: 11px; font-weight: 700; }
+    .privacy-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 0; border-bottom: 1px solid #eaede5; }
+    .privacy-row strong { display: block; font-size: 10px; }
+    .privacy-row small { display: block; margin-top: 3px; color: #7e8a83; font-size: 9px; }
+    .switch { width: 36px; height: 21px; position: relative; flex: 0 0 36px; border: 0; border-radius: 20px; background: #ccd5cc; }
+    .switch:after { content: ""; position: absolute; top: 3px; left: 3px; width: 15px; height: 15px; border-radius: 50%; background: #fff; transition: transform .15s; }
+    .switch.on { background: #42846a; }
+    .switch.on:after { transform: translateX(15px); }
+    .bottom-nav { flex: 0 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); padding: 8px 8px 10px; border-top: 1px solid #eceee7; background: #fbfaf5; }
+    .nav-item { display: grid; justify-items: center; gap: 3px; border: 0; padding: 3px 2px; color: #89958e; background: transparent; font-size: 8px; }
+    .nav-item span:first-child { font-size: 15px; line-height: 1; }
+    .nav-item.active { color: #276a54; font-weight: 700; }
+    .modal-backdrop { position: absolute; inset: 0; z-index: 5; display: grid; align-items: end; padding: 12px; background: rgba(32, 48, 41, .24); }
+    .modal { max-height: 85%; overflow-y: auto; border: 1px solid #e4e6dc; border-radius: 20px; padding: 18px; background: #fffefa; box-shadow: 0 16px 50px rgba(31,47,40,.2); animation: lift .2s ease-out; }
+    .modal h2 { margin: 0 0 7px; font-size: 19px; letter-spacing: -.04em; }
+    .modal p { margin: 0; color: #6e7a72; font-size: 11px; line-height: 1.6; }
+    .modal-actions { display: grid; gap: 8px; margin-top: 16px; }
+    .share-preview { margin-top: 14px; border: 1px solid #e1e7de; border-radius: 13px; padding: 13px; background: #f7f8f2; }
+    .share-preview p { margin-top: 7px; font-size: 10px; }
+    .toast { position: absolute; left: 50%; bottom: 71px; z-index: 7; transform: translateX(-50%); border-radius: 99px; padding: 9px 13px; color: #fff; background: #244e40; box-shadow: 0 7px 20px rgba(0,0,0,.18); font-size: 10px; white-space: nowrap; }
+    .toast.fixed { position: fixed; bottom: 28px; }
+    .form-error { margin: 9px 0 0; color: #a14b3c; font-size: 10px; line-height: 1.45; }
+    .ai-box { margin: 16px 0 4px; border: 1px solid #dfe8dd; border-radius: 14px; padding: 12px; background: #f3f7f1; }
+    .ai-row { display: flex; gap: 7px; }
+    .ai-row .text-input { flex: 1; min-width: 0; padding: 10px 11px; font-size: 11px; }
+    .ai-row .btn { width: auto; flex: 0 0 auto; min-height: 38px; padding: 8px 13px; }
+    .ai-answer { margin-top: 10px; background: #fff; }
+    .ai-answer p { margin-top: 7px; font-size: 11px; }
+    .scene-card.has-image { aspect-ratio: 3 / 2; min-height: 0; }
+    .scene-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .scene-card.has-image .scene-label { z-index: 1; }
+    .scene-ai-tag { position: absolute; right: 10px; bottom: 10px; padding: 4px 7px; border-radius: 99px; color: #fff; background: rgba(32,51,46,.62); font-size: 8px; font-weight: 700; }
+    .scene-status { width: fit-content; margin: -9px 0 14px; padding: 6px 10px; border-radius: 99px; color: #4f6359; background: #e5efe5; font-size: 11px; font-weight: 600; animation: pulse 1.4s ease-in-out infinite; }
+    .image-error { margin: -9px 0 14px; }
+    @keyframes pulse { 50% { opacity: .55; } }
+    .inbox-link { width: 100%; margin: 14px 0 0; text-align: left; color: var(--ink); }
+    .draft-task { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid #eef0ea; color: #43574d; font-size: 10px; }
+    .plan-add-row { display: grid; grid-template-columns: minmax(0,1fr) 84px 76px auto; gap: 7px; }
+    .plan-add-row .text-input { padding: 9px; font-size: 10px; }
+    .plan-add-row .btn { width: auto; min-height: 36px; font-size: 10px; }
+    .route-grid { display: grid; gap: 7px; }
+    .route-grid .choice-card { padding: 10px 12px; }
+    .shared-block { padding: 10px 0; border-bottom: 1px solid #eef0ea; }
+    .shared-block:last-child { border-bottom: 0; }
+    .shared-block > strong { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #375549; font-size: 11px; }
+    .shared-block p, .shared-block li { margin: 4px 0 0; color: #5f6f66; font-size: 10px; line-height: 1.5; }
+    .shared-block ul { margin: 4px 0 0; padding-left: 16px; }
+    .empty-state { padding: 18px; color: #76837b; font-size: 11px; text-align: center; }
+    button.partner-tag { cursor: pointer; }
+    /* ---- v0.2 design (Figma "0.2 screens") ---- */
+    .app-brand { color: var(--green); font-size: 20px; letter-spacing: -.01em; }
+    .screen-scroll h1 { font-size: 29px; line-height: 1.12; letter-spacing: -.03em; color: var(--ink); }
+    .screen-scroll h2 { font-size: 20px; }
+    .screen-scroll h3 { font-size: 15px; }
+    .lead { color: var(--muted); font-size: 15px; line-height: 1.55; }
+    .microcopy { color: var(--muted); font-size: 12px; }
+    .field-label { margin: 20px 0 8px; color: var(--ink); font-size: 14px; }
+    .text-input, .text-area { padding: 13px 14px; font-size: 15px; border-color: #dde3dc; }
+    .btn { min-height: 46px; border-radius: 12px; font-size: 14px; font-weight: 600; }
+    .btn.secondary { border-color: #dde3dc; color: var(--green); }
+    .btn.danger { background: #a14b3c; }
+    .btn.danger:hover { background: #853b2f; }
+    .choice-card { border-radius: 14px; padding: 14px 15px; }
+    .choice-card .choice-title { font-size: 15px; font-weight: 500; }
+    .choice-card .choice-copy { font-size: 12px; color: var(--muted); }
+    .choice-card.selected { border-color: var(--green); background: var(--mint); }
+    .choice-mark { width: 18px; height: 18px; }
+    .choice-card.selected .choice-mark { border: 5px solid var(--green); }
+    .step-label { margin: 0 0 8px; color: var(--green); font-size: 12px; font-weight: 700; }
+    .seg-progress { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px; margin: 0 0 18px; }
+    .seg-progress i { height: 4px; border-radius: 99px; background: #dde5df; }
+    .seg-progress i.on { background: var(--green); }
+    .screen-actions { flex: 0 0 auto; display: grid; gap: 8px; padding: 10px 22px 16px; background: var(--paper); }
+    .screen-actions .btn { width: 100%; }
+    .landing { flex: 1 1 auto; display: grid; place-content: center; text-align: center; padding: 20px; }
+    .landing-brand { color: var(--green); font-size: 54px; letter-spacing: -.02em; }
+    .landing p { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
+    .heart-note { display: flex; gap: 9px; align-items: flex-start; margin-top: 14px; padding: 12px 13px; border-radius: 12px; background: var(--mint); color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .heart-note span:first-child { color: var(--green); font-size: 14px; line-height: 1.1; }
+    .hero-img { display: block; width: 100%; aspect-ratio: 4 / 3; margin: 16px 0; border-radius: 16px; object-fit: cover; background: #ece6d9; }
+    .hero-img.short { aspect-ratio: 16 / 9; }
+    .hero-img.pulse { animation: pulse 1.8s ease-in-out infinite; }
+    .icon-card { display: flex; align-items: center; gap: 12px; padding-right: 44px; }
+    .icon-card .choice-mark { top: 50%; transform: translateY(-50%); }
+    .icon-tile { flex: 0 0 38px; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; color: var(--green); background: var(--peach); font-size: 17px; font-weight: 700; }
+    .icon-card-text { min-width: 0; display: grid; gap: 2px; }
+    .icon-card .choice-copy { margin-top: 0; }
+    .nav-card { align-items: flex-start; }
+    .nav-card .chev { position: absolute; top: 14px; right: 14px; color: var(--muted); font-size: 22px; line-height: 1; }
+    .card-link { margin-top: 4px; color: var(--green); font-size: 12px; font-weight: 600; }
+    .avatar-wrap { display: grid; justify-items: center; gap: 8px; margin: 18px 0 6px; }
+    .avatar-wrap.left { justify-items: start; margin: 8px 0 12px; }
+    .avatar-wrap strong { font-size: 14px; }
+    .avatar-svg { display: block; border-radius: 50%; }
+    .search-row { display: grid; gap: 8px; }
+    .industry-list { display: grid; gap: 8px; margin-top: 10px; }
+    .industry-row { width: 100%; display: flex; align-items: center; gap: 12px; padding: 8px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); background: #fff; text-align: left; }
+    .industry-row:hover { border-color: #9bb9a7; }
+    .industry-row img { flex: 0 0 52px; width: 52px; height: 52px; border-radius: 8px; object-fit: cover; }
+    .industry-row strong { display: block; font-size: 14px; font-weight: 600; }
+    .industry-row small { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; }
+    .home-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .field-select, .passport-link { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 14px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); background: #fff; font-size: 15px; text-align: left; }
+    .passport-link { margin-top: 12px; justify-content: flex-start; }
+    .passport-link > span:nth-child(2) { flex: 1; min-width: 0; }
+    .passport-link strong { display: block; font-size: 14px; font-weight: 600; }
+    .passport-link small { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; }
+    .story-card { margin-top: 12px; border: 1px solid var(--line); border-radius: 16px; padding: 10px 10px 12px; background: #fff; }
+    .story-card .hero-img { margin: 0 0 10px; border-radius: 12px; }
+    .story-card h3 { margin: 0 4px 4px !important; }
+    .story-card p { margin: 0 4px 12px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .or-divider { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 11px; }
+    .or-divider::before, .or-divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+    .google-btn { color: var(--ink) !important; font-weight: 500; }
+    .pause-top { border: 0; padding: 4px 0; color: var(--muted); background: transparent; font-size: 13px; }
+    .role-line { margin: 4px 0 6px; color: var(--ink); font-size: 14px; font-weight: 700; }
+    .loading-row { display: flex; align-items: center; gap: 12px; margin: 4px 0 16px; }
+    .loading-row strong { display: block; color: var(--green); font-size: 15px; font-weight: 600; }
+    .loading-row small { display: block; color: var(--muted); font-size: 12px; }
+    .path-list { margin: 12px 0 0; padding: 0; list-style: none; }
+    .path-list li { display: grid; grid-template-columns: 38px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+    .path-label { margin: 0 0 3px; color: var(--green); font-size: 13px; font-weight: 700; }
+    .path-list strong { display: block; font-size: 14px; }
+    .path-list small { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .skill-block { border: 1px solid var(--line); border-radius: 14px; padding: 14px; background: #fff; }
+    .skill-block h3 { margin: 0 !important; font-size: 16px !important; }
+    .skill-block .kicker { margin: 10px 0 3px; color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+    .skill-block p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .modal-icon { color: var(--green); font-size: 22px; text-align: center; letter-spacing: -.1em; }
+    .modal h2 { font-size: 24px; }
+    .pause-link.danger { margin-top: 18px; color: #a14b3c; text-decoration: underline; }
+    .modal-backdrop.center { align-items: center; padding: 24px; }
+    .modal.verify { padding: 24px; }
+    .modal.verify h2 { font-size: 28px; }
+    .modal.verify > p { font-size: 13px; }
+    .modal.verify .verify-field { margin-top: 14px; color: var(--ink); font-size: 13px; }
+    .verify-box { display: grid; justify-items: center; gap: 8px; margin-top: 14px; padding: 26px 18px; border-radius: 16px; background: #e5efe5; text-align: center; }
+    .verify-box strong { font-size: 14px; }
+    .verify-box small { color: #6e7a72; font-size: 11px; line-height: 1.5; }
+    .spinner { width: 38px; height: 38px; margin-bottom: 6px; border: 4px solid #cfe0d4; border-top-color: var(--green); border-right-color: var(--green); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 3s; } }
+    @keyframes lift { from { transform: translateY(12px); opacity: .55; } to { transform: translateY(0); opacity: 1; } }
+    @media (max-width: 1060px) {
+      .studio { padding-inline: 16px; }
+      .studio-grid { grid-template-columns: minmax(0, 1fr) 402px; gap: 18px; }
+      .side-card:first-child { display: none; }
+      .studio-grid.mentor-active { grid-template-columns: minmax(0,1fr); }
+      .metric-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    }
+    @media (max-width: 760px) {
+      body, .studio { min-height: 100dvh; }
+      .studio { padding: env(safe-area-inset-top) 0 0; }
+      .studio-head { display: flex; min-height: 44px; margin: 0; padding: 6px 10px; background: #f1f0e9; }
+      .brand-mark, .brand-name, .brand-sub, .demo-label { display: none; }
+      .studio-head { justify-content: flex-end; }
+      .role-current { max-width: 132px; overflow: hidden; text-overflow: ellipsis; }
+      .side-card { display: none; }
+      .studio-grid { min-height: calc(100dvh - 44px); display: block; }
+      .phone-wrap { display: block; }
+      .phone-frame { width: 100%; height: calc(100dvh - 44px - env(safe-area-inset-top)); min-height: 0; padding: 0; border: 0; border-radius: 0; background: var(--paper); box-shadow: none; }
+      .phone-screen { border-radius: 0; }
+      .plan-add-row { grid-template-columns: 1fr 1fr; }
+      .plan-add-row > :first-child { grid-column: 1 / -1; }
+      .bottom-nav { padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+      .screen-scroll { padding-bottom: 26px; }
+      .studio-grid.mentor-active { min-height: calc(100dvh - 44px - env(safe-area-inset-top)); }
+      .workspace { border-radius: 0; padding: 16px 12px 30px; }
+      .workspace-head { flex-direction: column; gap: 10px; }
+      .workspace-head h1 { font-size: 23px; }
+      .workspace-columns { grid-template-columns: minmax(0,1fr); }
+      .student-table { min-width: 560px; }
+      .table-scroll { overflow-x: auto; }
+      .detail-kpis { grid-template-columns: repeat(3,minmax(0,1fr)); }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *:before, *:after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <main class="studio">
+    <header class="studio-head">
+      <div class="brand-lockup"><div class="brand-mark" aria-hidden="true">c.</div><div><div class="brand-name">Carie AI</div><span class="brand-sub">Career exploration, at your pace</span></div></div>
+      <div class="head-tools"><button class="lang-toggle" id="lang-toggle" data-action="toggle-lang" data-no-translate aria-pressed="false">Translation <small>中文</small></button><div class="role-switch" aria-label="Current local demo profile"><span class="role-current" id="role-current">Not signed in</span><button class="role-tab" id="sign-out" data-action="sign-out" hidden>Sign out</button></div></div>
+      <div class="demo-label"><span class="demo-dot"></span> <span id="mode-label">Hong Kong</span></div>
+    </header>
+    <div class="studio-grid" id="studio-grid">
+      <aside class="side-card" aria-label="Prototype overview">
+        <p class="side-kicker">The student journey</p>
+        <h2>From “not sure” to a next step.</h2>
+        <p>Short work stories help students explore what they enjoy before anyone asks them to pick one future.</p>
+        <ol class="route-list">
+          <li><span class="route-num">1</span><span><strong>Get curious</strong>Choose a starting point or try five quick questions.</span></li>
+          <li><span class="route-num">2</span><span><strong>Try a role</strong>Make decisions in a realistic work story.</span></li>
+          <li><span class="route-num">3</span><span><strong>Reflect</strong>Notice what felt energising and save your own evidence.</span></li>
+          <li><span class="route-num">4</span><span><strong>Take it further</strong>Prepare a question for a mentor or counsellor.</span></li>
+        </ol>
+        <div class="side-divider"></div>
+        <p class="side-kicker">Designed for</p>
+        <p>Hong Kong students exploring careers, study routes and real-world opportunities. The report names S4–S6 as the target, while later milestones also consider Form 3 to early Form 4.</p>
+        <span class="note-pill">No grades</span><span class="note-pill">No “best career” score</span>
+      </aside>
+      <section class="phone-wrap" id="student-view" aria-label="Carie AI app preview">
+        <div class="phone-frame"><div class="phone-screen" id="app"></div></div>
+      </section>
+      <section class="mentor-wrap" id="mentor-view" hidden aria-label="NGO mentor workspace"><div id="mentor-app"></div></section>
+      <aside class="side-card" id="product-note" aria-live="polite"></aside>
+    </div>
+  </main>
+  <script src="./config.js"></script>
+  <script src="./i18n.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
+  <script>
+    // Career quiz (v0.2): each answer adds soft points to six orientation tags.
+    const quiz = [
+      { q: "When something is confusing, what would you like to try?", a: [
+        { t: "Ask someone how it feels to use it.", c: "Hear their experience before changing things.", icon: "💬", pts: { people: 3, analytical: 1, impact: 1 } },
+        { t: "Try changing one part.", c: "See whether a small change helps.", icon: "🧩", pts: { maker: 3, analytical: 2, creative: 1 } },
+        { t: "Explain it in a new way.", c: "Make the idea easier to understand.", icon: "💡", pts: { creative: 3, people: 2, analytical: 1 } },
+        { t: "Look for a pattern.", c: "Notice when and where the confusion happens.", icon: "🔍", pts: { analytical: 3, maker: 1, organising: 1 } } ] },
+      { q: "What kind of difference feels good to make?", a: [
+        { t: "Make someone’s day easier.", c: "Small help that people notice straight away.", icon: "🤝", pts: { people: 3, impact: 3, organising: 1 } },
+        { t: "Build or improve something useful.", c: "See a thing you made actually work.", icon: "🛠️", pts: { maker: 3, analytical: 2, impact: 1 } },
+        { t: "Help a group work better together.", c: "Get everyone moving in the same direction.", icon: "👥", pts: { organising: 3, people: 3, impact: 1 } },
+        { t: "Share an idea people remember.", c: "Say or show something in a fresh way.", icon: "✨", pts: { creative: 3, people: 2, impact: 1 } } ] },
+      { q: "If you had a free afternoon for a project, what sounds most interesting?", a: [
+        { t: "Find out why something happens.", c: "Dig into the reasons behind it.", icon: "🔬", pts: { analytical: 3, maker: 1, impact: 1 } },
+        { t: "Make a rough version and test it.", c: "Build fast, then improve it.", icon: "🧪", pts: { maker: 3, analytical: 2, creative: 1 } },
+        { t: "Plan how to get everything done.", c: "Turn a big job into clear steps.", icon: "🗂️", pts: { organising: 3, analytical: 2, people: 1 } },
+        { t: "Create something people can see or use.", c: "Design, draw, film or write it.", icon: "🎨", pts: { creative: 3, maker: 2, people: 1 } } ] },
+      { q: "Which kind of workday sounds most comfortable right now?", a: [
+        { t: "Talking with different people.", c: "Lots of conversations and teamwork.", icon: "🗣️", pts: { people: 3, organising: 1, creative: 1 } },
+        { t: "Focusing deeply on a tricky task.", c: "Quiet time to solve one problem well.", icon: "🎯", pts: { analytical: 3, maker: 2 } },
+        { t: "Moving between tasks and keeping things on track.", c: "A varied day with a clear plan.", icon: "📋", pts: { organising: 3, people: 2, analytical: 1 } },
+        { t: "Making ideas clearer, better, or more engaging.", c: "Polish something until it shines.", icon: "🖌️", pts: { creative: 3, people: 2, maker: 1 } } ] },
+      { q: "What would you be most curious to learn next?", a: [
+        { t: "How people think, feel, or make choices.", c: "What makes people tick.", icon: "🧠", pts: { people: 3, analytical: 2, impact: 1 } },
+        { t: "How technology or systems work.", c: "What happens behind the screen.", icon: "⚙️", pts: { analytical: 3, maker: 3, organising: 1 } },
+        { t: "How money, organisations, or markets work.", c: "How businesses and services run.", icon: "📈", pts: { organising: 3, analytical: 2, people: 1 } },
+        { t: "How the world can be healthier, fairer, or more sustainable.", c: "Changes that help a whole community.", icon: "🌱", pts: { impact: 3, people: 2, analytical: 1 } } ] }
+    ];
+    // Jobs are grouped by orientation tags (career sheet).
+    const CLUSTERS = [
+      { tags: ["maker", "creative", "people"], jobs: ["UX design", "Product design", "Content design", "Architecture"] },
+      { tags: ["analytical", "maker", "organising"], jobs: ["Software development", "Engineering", "Data operations", "Logistics"] },
+      { tags: ["people", "impact", "organising"], jobs: ["Nursing", "Teaching", "Community work", "Human resources", "Public service"] }
+    ];
+    const JOBS = {
+      "UX design": ["Make apps easier to use.", "🧭"], "Software development": ["Build digital tools.", "💻"], "Cybersecurity": ["Help keep information safe.", "🛡️"],
+      "Product design": ["Shape how digital products work.", "📐"], "Content design": ["Write words that help people act.", "✍️"], "Architecture": ["Design buildings people live and work in.", "🏛️"],
+      "Engineering": ["Solve practical problems with technology.", "🔧"], "Data operations": ["Keep data accurate and useful.", "📊"], "Logistics": ["Get goods where they need to be.", "🚚"],
+      "Nursing": ["Care for patients day to day.", "🩺"], "Physiotherapy": ["Help people move and recover.", "🦵"], "Medical laboratory science": ["Test samples that guide treatment.", "🧫"],
+      "Animation": ["Bring characters and ideas to life.", "🎞️"], "Journalism": ["Find and tell true stories.", "📰"], "Marketing": ["Help people find what they need.", "📣"],
+      "Accounting": ["Keep an organisation’s money clear.", "🧾"], "Hospitality management": ["Make guests feel looked after.", "🛎️"], "Civil engineering": ["Plan places and systems people rely on.", "🌉"],
+      "Building services engineering": ["Keep buildings safe, lit and cool.", "🏢"], "Teaching": ["Help students learn and grow.", "📚"], "Social work": ["Support people through hard times.", "🫶"],
+      "Youth work": ["Help young people find their way.", "🧑‍🤝‍🧑"], "Community work": ["Bring neighbours and services together.", "🏘️"], "Human resources": ["Help people do their best at work.", "🙋"],
+      "Public service": ["Run services the whole city uses.", "🏙️"]
+    };
+    const jobDetail = name => JOBS[name]?.[0] || "Try a day in this job.";
+    const jobIcon = name => JOBS[name]?.[1] || "✦";
+    const INDUSTRIES = [
+      { key: "technology", name: "Technology", detail: "Make everyday digital tools better.", fields: ["UX design", "Software development", "Cybersecurity"] },
+      { key: "healthcare", name: "Healthcare", detail: "Support people’s health and care.", fields: ["Nursing", "Physiotherapy", "Medical laboratory science"] },
+      { key: "creative", name: "Creative and media", detail: "Tell stories and create new ideas.", fields: ["Content design", "Animation", "Journalism"] },
+      { key: "business", name: "Business and services", detail: "Help people and services work well.", fields: ["Marketing", "Accounting", "Hospitality management"] },
+      { key: "engineering", name: "Engineering and built environment", detail: "Shape places and solve practical problems.", fields: ["Civil engineering", "Architecture", "Building services engineering"] },
+      { key: "community", name: "Community and education", detail: "Help people learn and connect.", fields: ["Teaching", "Social work", "Youth work"] }
+    ];
+    const industryImage = key => `./images/${key}.jpg`;
+    const imageForField = field => { const ind = INDUSTRIES.find(i => i.fields.includes(field)); return ind ? industryImage(ind.key) : industryImage("welcome"); };
+    // Two jobs from the strongest tag group plus one from the next, so students see some range.
+    function recommendedJobs() {
+      const score = {};
+      state.answers.forEach((n, i) => { const pts = quiz[i]?.a[n]?.pts || {}; Object.entries(pts).forEach(([tag, v]) => { score[tag] = (score[tag] || 0) + v; }); });
+      const ranked = CLUSTERS.map(c => ({ c, total: c.tags.reduce((sum, t) => sum + (score[t] || 0), 0) })).sort((a, b) => b.total - a.total);
+      return [ranked[0].c.jobs[0], ranked[0].c.jobs[1], ranked[1].c.jobs[0]];
+    }
+    const opportunityExamples = [
+      { title: "Digital service design taster", kind: "Workshop", detail: "A short, hands-on way to try improving a service for real people.", next: "Ask your school or NGO whether a session is available." },
+      { title: "Community event volunteer team", kind: "Volunteering", detail: "Help a local group welcome visitors and organise sign-ups.", next: "Check age, timing and travel details with a mentor." },
+      { title: "Student makers or coding club", kind: "School club", detail: "Build a small project with other students and share what you learn.", next: "Ask a teacher which clubs are open this term." },
+      { title: "Scholarship and fee support search", kind: "Financial support", detail: "Compare support options for routes you may want to explore.", next: "Review current eligibility and deadlines with a school counsellor." }
+    ];
+    const pathwayRoutes = [
+      { key: "university", icon: "⌂", title: "University route", detail: "Related degree programmes. Compare subject prerequisites, admission requirements, tuition and financial support." },
+      { key: "vocational", icon: "↗", title: "Vocational and applied learning", detail: "Hands-on courses, applied learning and qualifications that can lead to further study or work." },
+      { key: "real-world", icon: "◎", title: "Try it in the real world", detail: "A taster activity, volunteer role, school club or conversation to learn what the work feels like." }
+    ];
+    const storyScene = "You’re a junior UX designer at a Hong Kong community centre. The weekend event sign-up page is confusing, and visitors keep leaving before they finish.";
+    const decisions = [
+      {
+        title: "People keep leaving the sign-up page before finishing. What do you do first?",
+        options: [
+          { title: "Ask visitors where they get stuck.", copy: "Hear from visitors. It takes time, but may reveal something you missed.", skill: "Communication", evidence: "You listened to visitors before changing the page.", outcome: "Two visitors say the form asks for details they do not understand. You found a useful clue, with a little less time left." },
+          { title: "Simplify the page using what you know.", copy: "Move quickly. Your ideas might help, but some needs may stay hidden.", skill: "Problem-solving", evidence: "You made a first improvement quickly and kept the deadline in view.", outcome: "The page is shorter. One visitor finishes faster, but another still pauses at the same question." },
+          { title: "Ask the team what worked before.", copy: "Use their experience. It may not reflect today’s visitors.", skill: "Collaboration", evidence: "You brought your team’s experience into the decision.", outcome: "A teammate spots a confusing label. Their past experience helps, and you still need to check it with visitors." }
+        ], help: ["User research", "Learn from the people who use something so you can understand what they need.", "For example: Ask a visitor to show you where the sign-up form feels confusing."]
+      },
+      {
+        title: "The form asks for an ID number, but the event may not need it. What do you do?",
+        options: [
+          { title: "Check with the event organiser.", copy: "Confirm what is essential before collecting personal information.", skill: "Ethical judgment", evidence: "You checked whether the information was truly needed.", outcome: "The organiser confirms the number is not needed. You remove an unnecessary step and reduce the information collected." },
+          { title: "Leave the field in for now.", copy: "It is familiar, but visitors may share more than the event needs.", skill: "Ethical judgment", evidence: "You noticed a privacy question that still needs an answer.", outcome: "The form is ready sooner, but the team agrees to confirm the field before sharing it publicly." },
+          { title: "Remove it to make the form shorter.", copy: "That could help visitors, but check the event requirements first.", skill: "Problem-solving", evidence: "You looked for a simpler path through the form.", outcome: "The form is shorter. You flag the change so the organiser can confirm no important step was lost." }
+        ], help: ["Data minimisation", "Only ask for personal details that are needed for the task.", "For example: A free community event may need a name to reserve a place, but not a home address."]
+      },
+      {
+        title: "A visitor uses a screen reader. What could make the page easier to use?",
+        options: [
+          { title: "Check headings and button labels aloud.", copy: "A clear structure helps people move through the page.", skill: "Accessibility", evidence: "You considered how different people access the same service.", outcome: "You find two buttons with unclear labels and make their purpose easier to hear." },
+          { title: "Ask the visitor what would help.", copy: "Invite their perspective without assuming every person needs the same thing.", skill: "Communication", evidence: "You asked the person using the service what works for them.", outcome: "The visitor points out a helpful change to the form order. You add it to the test plan." },
+          { title: "Keep the layout and add a note.", copy: "A note can help, but the page itself may still be hard to navigate.", skill: "Ethical judgment", evidence: "You spotted an access concern that deserves follow-through.", outcome: "The note explains the issue, and you set a reminder to improve the page itself." }
+        ], help: ["Screen reader", "A tool that reads text and controls aloud for someone who cannot see the screen clearly.", "Accessible pages also help people using keyboards, small screens or translation tools."]
+      },
+      {
+        title: "The weekend event is close. How will you check whether the change helped?",
+        options: [
+          { title: "Ask two visitors to try signing up.", copy: "A small test can reveal a confusing step before launch.", skill: "Problem-solving", evidence: "You tested the change with the people who will use it.", outcome: "One visitor completes the form smoothly. Another still hesitates, so you note one more improvement." },
+          { title: "Publish it and see what happens.", copy: "You meet the deadline, but may miss a problem until the event starts.", skill: "Handling change", evidence: "You kept the deadline in view and identified what still needs monitoring.", outcome: "The update is ready on time. You agree to keep a contact available during sign-up." },
+          { title: "Ask a teammate to review the page.", copy: "A fresh pair of eyes can help, though they may know the form already.", skill: "Collaboration", evidence: "You invited a teammate to check your work before launch.", outcome: "Your teammate catches a missing event detail. You add it before the page goes live." }
+        ], help: ["Usability test", "A short try-out that shows where someone may get stuck using a page or tool.", "It is about improving the design, not testing the person."]
+      },
+      {
+        title: "You have one minute to update the team. What do you share?",
+        options: [
+          { title: "What changed and what still needs checking.", copy: "A clear update helps the team make the next decision together.", skill: "Communication", evidence: "You shared the result and the remaining question.", outcome: "Your team agrees on the next small check. The event page is clearer, and the learning can carry into the next project." },
+          { title: "That the page is finished.", copy: "It is concise, but it leaves out what visitors told you.", skill: "Communication", evidence: "You delivered a concise update under time pressure.", outcome: "The team knows the page is ready. You decide to save the visitor feedback for the next review." },
+          { title: "The visitor feedback and one open question.", copy: "You keep the people’s experience visible while naming what remains uncertain.", skill: "Ethical judgment", evidence: "You kept user feedback and uncertainty visible in the handoff.", outcome: "The team sees both what improved and what should be checked next." }
+        ], help: ["Handoff", "A short update that helps another person continue the work.", "A useful handoff can include what changed, what is still uncertain and who will follow up."]
+      }
+    ];
+
+    // ---------- Data layer: Supabase when configured, otherwise this browser ----------
+    const CFG = window.CARIE_CONFIG || {};
+    const cloudConfigured = !!(CFG.supabaseUrl && CFG.supabaseAnonKey);
+    const sb = cloudConfigured && window.supabase ? window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey) : null;
+    const cloud = !!sb;
+    const LOCAL_DEV = ["localhost", "127.0.0.1"].includes(location.hostname);
+    const LOCAL_DB_KEY = "carie-local-db", LOCAL_SESSION_KEY = "carie-local-session", PENDING_ROLE_KEY = "carie-pending-role";
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const newId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+    const anyShared = p => !!(p && (p.share_field || p.share_skills || p.share_decisions || p.share_reflection || p.requested_checkin));
+    // Storage can be unavailable (blocked site data, some private windows); never let that break the app.
+    const store = {
+      get(key) { try { return localStorage.getItem(key); } catch { return null; } },
+      set(key, value) { try { localStorage.setItem(key, value); } catch {} },
+      remove(key) { try { localStorage.removeItem(key); } catch {} }
+    };
+    // Interface language: "en" or "zh" (Traditional Chinese, Hong Kong). Remembered on this device.
+    let LANG = store.get("carie-lang") === "zh" ? "zh" : "en";
+    function readLocalDb() {
+      try { const d = JSON.parse(store.get(LOCAL_DB_KEY) || "{}"); return { users:d.users||[], passports:d.passports||{}, plans:d.plans||[], pathways:d.pathways||[], notes:d.notes||[] }; }
+      catch { return { users:[], passports:{}, plans:[], pathways:[], notes:[] }; }
+    }
+    function writeLocalDb(d) { store.set(LOCAL_DB_KEY, JSON.stringify(d)); }
+    // Mirrors shared_students() in supabase/schema.sql: unshared sections come back as null.
+    function sharedView(p, profile) {
+      return { student_id:p.student_id, name:profile?.name||"Student", stage:profile?.stage||"",
+        field:p.share_field?p.field:null, story:p.share_field?p.story:null, saved:p.share_field?p.saved:null,
+        decisions:p.share_decisions?p.decisions:null, skills:p.share_skills?p.skills:null,
+        energy:p.share_reflection?p.energy:null, reflection:p.share_reflection?p.reflection:null,
+        share_field:p.share_field, share_skills:p.share_skills, share_decisions:p.share_decisions, share_reflection:p.share_reflection,
+        requested_checkin:p.requested_checkin, updated_at:p.updated_at };
+    }
+    const tableName = t => t === "notes" ? "mentor_notes" : t;
+    let me = null;
+    const db = {
+      async restore() {
+        if (cloud) { const { data } = await sb.auth.getSession(); return data.session ? this.loadProfile(data.session.user.id) : null; }
+        const id = store.get(LOCAL_SESSION_KEY);
+        return readLocalDb().users.find(u=>u.id===id) || null;
+      },
+      async loadProfile(id) {
+        const { data, error } = await sb.from("profiles").select("id,email,role,name,stage,organization").eq("id", id).single();
+        if (error) throw error; return data;
+      },
+      // Google sign-in leaves the page; the chosen role is remembered until we come back.
+      async signInWithGoogle(role) {
+        store.set(PENDING_ROLE_KEY, role);
+        const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + location.pathname } });
+        if (error) { store.remove(PENDING_ROLE_KEY); throw error; }
+      },
+      // A brand-new Google account starts as a student; this upgrades it if "Mentor" was chosen.
+      async claimMentorRole(profile) {
+        const { error } = await sb.rpc("claim_mentor_role");
+        if (error) throw error;
+        return this.loadProfile(profile.id);
+      },
+      async sendCode(email, meta) {
+        const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true, data: meta, emailRedirectTo: location.origin + location.pathname } });
+        if (error) throw error;
+      },
+      async verifyCode(email, token) {
+        const { data, error } = await sb.auth.verifyOtp({ email, token, type: "email" });
+        if (error) throw error;
+        return this.loadProfile(data.user.id);
+      },
+      localRegister(email, meta) {
+        const d = readLocalDb(); let u = d.users.find(x=>x.email===email);
+        if (!u) { u = { id:newId(), email, ...meta }; d.users.push(u); writeLocalDb(d); }
+        store.set(LOCAL_SESSION_KEY, u.id); return u;
+      },
+      async signOut() { if (cloud) await sb.auth.signOut(); else store.remove(LOCAL_SESSION_KEY); },
+      async updateName(name) {
+        if (cloud) { const { error } = await sb.rpc("update_my_name", { new_name: name }); if (error) throw error; return; }
+        const d = readLocalDb(); const u = d.users.find(x=>x.id===me.id); if (u) { u.name = name; writeLocalDb(d); }
+      },
+      async loadPassport() {
+        if (cloud) { const { data, error } = await sb.from("passports").select("*").eq("student_id", me.id).maybeSingle(); if (error) throw error; return data; }
+        return readLocalDb().passports[me.id] || null;
+      },
+      async savePassport(p) {
+        const row = { ...p, student_id:me.id, updated_at:new Date().toISOString() };
+        if (cloud) { const { error } = await sb.from("passports").upsert(row); if (error) throw error; return; }
+        const d = readLocalDb(); d.passports[me.id] = row; writeLocalDb(d);
+      },
+      async sharedStudents() {
+        if (cloud) { const { data, error } = await sb.rpc("shared_students"); if (error) throw error; return data || []; }
+        const d = readLocalDb();
+        return Object.values(d.passports).filter(anyShared).map(p=>sharedView(p, d.users.find(u=>u.id===p.student_id))).sort((a,b)=>String(b.updated_at).localeCompare(String(a.updated_at)));
+      },
+      // Plans, pathways or notes visible to the signed-in user (own rows only).
+      async list(table) {
+        if (cloud) { const { data, error } = await sb.from(tableName(table)).select("*").order("created_at", { ascending:false }); if (error) throw error; return data || []; }
+        const key = me.role === "mentor" ? "mentor_id" : "student_id";
+        return readLocalDb()[table].filter(r=>r[key]===me.id).sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)));
+      },
+      async insert(table, row) {
+        if (cloud) { const { error } = await sb.from(tableName(table)).insert({ ...row, mentor_id:me.id }); if (error) throw error; return; }
+        const d = readLocalDb();
+        if (table !== "notes" && !anyShared(d.passports[row.student_id])) throw new Error("This student is no longer sharing their passport.");
+        d[table].push({ ...row, id:newId(), mentor_id:me.id, mentor_name:me.name, created_at:new Date().toISOString() }); writeLocalDb(d);
+      },
+      async setTaskDone(planId, index, done) {
+        if (cloud) { const { error } = await sb.rpc("set_plan_task_done", { plan_id:planId, task_index:index, is_done:done }); if (error) throw error; return; }
+        const d = readLocalDb(); const p = d.plans.find(x=>x.id===planId && x.student_id===me.id);
+        if (p?.tasks[index]) p.tasks[index].done = done; writeLocalDb(d);
+      },
+      async ai(action, payload) {
+        // AI answers, stories and skills are written in the interface language.
+        payload = { ...payload, lang: LANG === "zh" ? "zh-HK" : "en" };
+        // Local preview only: the dev server answers search, stories and skills with Google AI Studio.
+        if (!cloud && LOCAL_DEV && ["search", "story", "skills"].includes(action)) {
+          const res = await fetch("./api/ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, ...payload }) });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || data.error) throw new Error(data.error || `Search failed (${res.status}).`);
+          return data;
+        }
+        if (!cloud) throw new Error(cloudConfigured ? "Can’t reach the cloud service. Check your connection." : "AI isn’t set up yet: add your Supabase settings to config.js and deploy the ai function (see SETUP.md).");
+        const { data, error } = await sb.functions.invoke("ai", { body: { action, ...payload } });
+        if (error) {
+          let msg = "Carie AI couldn’t be reached just now. Please try again.";
+          try { const b = await error.context?.json(); if (b?.error) msg = b.error; else if (b?.code === "BOOT_ERROR" || error.context?.status === 503) msg = "Carie AI is busy right now. Please try again in a moment."; } catch {}
+          throw new Error(msg);
+        }
+        if (data?.error) throw new Error(data.error);
+        return data;
+      }
+    };
+
+    // The built-in UX story uses the same shape as AI-written stories. Its picture keys
+    // (imgScene / imgQuestion) match the pictures already saved in scene_images.
+    const youDid = t => `You ${t.charAt(0).toLowerCase()}${t.slice(1)}`;
+    const BUILTIN = {
+      labels: ["Listen first", "Ask only what’s needed", "Make it accessible", "Test before launch", "Share a careful handover"],
+      titles: ["The confusing sign-up", "Only what’s needed", "Every visitor counts", "Will it work?", "Handing over"],
+      blurbs: ["You’re helping a Hong Kong community centre improve its event sign-up page. Visitors keep leaving before they finish, and the event deadline is getting close. The team asks you where to start.",
+        "The form asks every visitor for an ID number. Nobody is sure the event actually needs it, and sign-ups open soon.",
+        "A regular visitor who uses a screen reader says the page is hard to move through. You want everyone to be able to sign up.",
+        "The weekend event is close. You’ve made changes, but you’re not yet sure they help real visitors.",
+        "It’s the end of the week. You have one minute in the team meeting to say where things stand."]
+    };
+    function builtinStory() {
+      return { builtin: true, role: "UX design", roleTitle: "Junior UX designer", storyTitle: "The confusing sign-up",
+        roleIntro: "UX designers understand people’s needs and make digital experiences easier to use.", setting: storyScene,
+        scenarios: decisions.map((d, i) => ({ label: BUILTIN.labels[i], title: BUILTIN.titles[i], blurb: BUILTIN.blurbs[i], question: d.title,
+          options: d.options.map(o => ({ ...o, outcomeHeading: youDid(o.title) })),
+          help: { term: d.help[0], meaning: d.help[1], example: d.help[2] }, imgScene: storyScene, imgQuestion: d.title })) };
+    }
+    const ETHNICITIES = ["East Asian", "Southeast Asian", "South Asian", "Central Asian", "Black", "White", "Hispanic", "Middle Eastern", "Prefer not to say"];
+    const GENDERS = ["Boy", "Girl", "Prefer not to say"];
+
+    // ---------- App state ----------
+    const initialState = () => ({
+      screen: "landing", authStep: "email", authEmail: "", authCode: "", authRole: "student", authName: "", authOrg: "", authBusy: false, authError: "",
+      name: "", schoolStage: "", ethnicity: "Prefer not to say", gender: "Prefer not to say",
+      quizIndex: 0, answers: [], recs: [], field: "UX design", industry: "", pickField: "",
+      jobQuery: "", jobError: "", related: [], relatedFor: "", relatedPick: -1,
+      story: null, storyRole: "", storyError: "", storyIndex: 0, storyStage: "intro", inProgress: false, decisions: [], selected: -1,
+      saved: false, savedStory: null, skillsBusy: false,
+      energy: "", reflection: "", shareName: "", showModal: "", toast: "",
+      sharedCareer: false, shareSkills: false, shareDecisions: false, includeReflection: false, requestedCheckIn: false,
+      aiQuery: "", aiAnswer: "", aiBusy: false, aiError: "",
+      myPlans: [], myPathways: [],
+      mentorView: "overview", mentorStudentId: "", mentorFilter: "all", mentorSearch: "", mentorDraft: "", mentorLoading: false, mentorError: "",
+      students: [], mentorPlans: [], mentorPathways: [], mentorNotes: [],
+      planGoal: "", planTasks: [], planTaskDraft: "", planTaskDay: "Mon", planTaskMinutes: "20",
+      pathRoute: "university", pathTitle: "", pathNote: "", pathOpportunity: ""
+    });
+    const TRANSIENT = ["toast","showModal","authBusy","authError","authCode","aiBusy","skillsBusy","storyError","jobError","myPlans","myPathways","students","mentorPlans","mentorPathways","mentorNotes","mentorLoading","mentorError"];
+    const STUDENT_SCREENS = ["welcome","avatar","start","selection","industry","failsafe","quiz","suggestions","home","loading","story","recap","skills","reflection","next","passport","mentor"];
+    let state = initialState();
+    let booting = true;
+    const storyImages = {};
+    const uiKey = () => `carie-ui-${me.id}`;
+    function persistUi() {
+      if (!me) return;
+      const copy = { ...state }; TRANSIENT.forEach(k=>delete copy[k]);
+      store.set(uiKey(), JSON.stringify(copy));
+    }
+    function loadUi() { try { return JSON.parse(store.get(uiKey()) || "{}"); } catch { return {}; } }
+
+    const app = document.getElementById("app");
+    const mentorApp = document.getElementById("mentor-app");
+    const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+    const fmtDate = v => v ? new Date(v).toLocaleDateString(LANG === "zh" ? "zh-HK" : "en-HK", { day:"numeric", month:"short" }) : "";
+    const initials = name => String(name||"?").trim().split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase();
+    const progress = (n, total) => `<div class="progress-track"><div class="progress-fill" style="width:${Math.round(n / total * 100)}%"></div></div>`;
+    const choice = (title, copy, action, selected, extra = "") => `<button class="choice-card ${selected ? "selected" : ""} ${extra}" data-action="${action}" aria-pressed="${selected ? "true" : "false"}"><span class="choice-title">${title}</span>${copy ? `<span class="choice-copy">${copy}</span>` : ""}<span class="choice-mark" aria-hidden="true"></span></button>`;
+    const btn = (label, action, cls = "", attrs = "") => `<button class="btn ${cls}" data-action="${action}" ${attrs}>${label}</button>`;
+    const formatAnswer = text => esc(text).replace(/^\s*[*-]\s+/gm, "• ").replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/\n/g, "<br>");
+
+    // ---------- Passport sync ----------
+    // The saved story (path summary + skills) is the passport entry. Avatar choices are never included.
+    function skillList() { return view(state.savedStory)?.skills || []; }
+    function passportRow() {
+      const s = state.savedStory;
+      return {
+        field: state.field || "", story: s?.storyTitle || "", saved: !!s,
+        decisions: (s?.path || []).map(p => ({ title: p.choice, skill: p.skill, scenario: p.label, outcome: p.outcome })),
+        skills: (s?.skills || []).map(k => ({ skill: k.skill, evidence: k.showed, involves: k.involves || "" })),
+        energy: state.energy || "", reflection: state.reflection || "",
+        share_field: state.sharedCareer, share_skills: state.shareSkills, share_decisions: state.shareDecisions,
+        share_reflection: state.includeReflection, requested_checkin: state.requestedCheckIn
+      };
+    }
+    function storyFromPassport(p) {
+      if (!p?.saved) return null;
+      return { role: p.field || "", storyTitle: p.story || "Career story",
+        path: (p.decisions || []).map(d => ({ label: d.scenario || "", choice: d.title || "", outcome: d.outcome || "", skill: d.skill || "" })),
+        skills: (p.skills || []).map(k => ({ skill: k.skill, showed: k.evidence || "", involves: k.involves || "" })) };
+    }
+    let syncTimer;
+    function syncPassport() {
+      if (me?.role !== "student") return;
+      clearTimeout(syncTimer);
+      syncTimer = setTimeout(async ()=>{ try { await db.savePassport(passportRow()); } catch (err) { toast(`Couldn’t save your passport: ${err.message}`); } }, 400);
+    }
+    async function loadStudentInbox() {
+      try { [state.myPlans, state.myPathways] = await Promise.all([db.list("plans"), db.list("pathways")]); }
+      catch (err) { state.toast = `Couldn’t load mentor plans: ${err.message}`; }
+      render();
+    }
+    async function mentorRefresh() {
+      state.mentorLoading = true; state.mentorError = ""; render();
+      try { [state.students, state.mentorPlans, state.mentorPathways, state.mentorNotes] = await Promise.all([db.sharedStudents(), db.list("plans"), db.list("pathways"), db.list("notes")]); }
+      catch (err) { state.mentorError = err.message; }
+      state.mentorLoading = false; render();
+    }
+    async function enterApp(profile) {
+      // Back from Google with "Mentor" chosen: upgrade the new account before anything else.
+      if (cloud && store.get(PENDING_ROLE_KEY)) {
+        const wanted = store.get(PENDING_ROLE_KEY);
+        store.remove(PENDING_ROLE_KEY);
+        if (wanted === "mentor" && profile.role === "student") {
+          try { profile = await db.claimMentorRole(profile); } catch (err) { console.warn("mentor role:", err.message); }
+        }
+      }
+      me = profile;
+      const saved = loadUi();
+      TRANSIENT.forEach(k=>delete saved[k]);
+      state = { ...initialState(), ...saved, schoolStage: saved.schoolStage || profile.stage || "" };
+      if (profile.role === "mentor") { state.screen = "mentor-workspace"; await mentorRefresh(); return; }
+      let passport = null;
+      try { passport = await db.loadPassport(); } catch (err) { state.toast = `Couldn’t load your passport: ${err.message}`; }
+      if (passport) {
+        Object.assign(state, { field: passport.field || state.field, saved: !!passport.saved, savedStory: storyFromPassport(passport),
+          energy: passport.energy || "", reflection: passport.reflection || "",
+          sharedCareer: !!passport.share_field, shareSkills: !!passport.share_skills, shareDecisions: !!passport.share_decisions,
+          includeReflection: !!passport.share_reflection, requestedCheckIn: !!passport.requested_checkin });
+      }
+      // Screens that only make sense mid-request (or older screen names) fall back to a safe place.
+      if (state.screen === "loading" || (state.screen === "story" && !state.story)) state.screen = "home";
+      if (!STUDENT_SCREENS.includes(state.screen)) state.screen = state.name ? "home" : "welcome";
+      // Returning students on a new device keep their profile name; brand-new students start onboarding.
+      if (!state.name) { if (passport?.saved) state.name = profile.name || ""; else state.screen = "welcome"; }
+      render();
+      loadStudentInbox();
+    }
+
+    // ---------- Student screens ----------
+    function noteForScreen() {
+      const notes = {
+        landing: ["Your carie-er companion", "A calm first screen: one button, no pressure.", ["Low-friction entry", "S4–S6 students"]],
+        register: ["One email, one account", "Students and mentors sign up with an email code. Mentors only see passport sections a student chooses to share.", ["Email sign-in", "Role-based access"]],
+        welcome: ["A calm first step", "A nickname is enough, and the copy says this is not an exam or a career label.", ["Low-friction entry", "Student voice"]],
+        avatar: ["Choice stays personal", "Ethnicity and gender only change the avatar. They stay on this device and never affect careers, difficulty or what mentors see.", ["Device only", "Optional"]],
+        start: ["Two ways in", "Explore an industry the student already has in mind, or start with five short questions.", ["Choice-led", "No single path"]],
+        selection: ["Start with curiosity", "Type any job and AI writes a story to try it, or browse six industries. Ask Carie AI answers questions along the way.", ["AI stories", "Any job"]],
+        industry: ["Fields within an industry", "Each industry offers a few concrete fields to try first.", ["Revisable", "Concrete roles"]],
+        failsafe: ["An honest fallback", "If AI can’t find reliable information for a job, it says so and suggests related jobs instead of inventing a story.", ["No made-up stories", "Related jobs"]],
+        quiz: ["Interests, not a score", "Each answer adds soft points to six orientations: people, analytical, maker, creative, organising and impact.", ["Five questions", "No grades"]],
+        suggestions: ["Three fields to try", "Suggestions come from the orientation points and are starting points, not predictions.", ["Explainable", "Changeable"]],
+        home: ["Try work, not a label", "The current field and its story are one tap away, with the Career Passport underneath.", ["Five decisions", "About 8 minutes"]],
+        loading: ["Story being written", "Google AI Studio picks five common situations for the role and writes three choices for each; Seedream draws each scene.", ["AI-written", "Saved for reuse"]],
+        story: ["Choices have trade-offs", "Each situation has an introduction, a decision and an outcome, with an AI picture of the moment.", ["AI images", "Pause any time"]],
+        recap: ["The path you took", "The five choices and what followed are saved to the Career Passport automatically. Students can delete them.", ["Auto-saved", "Student-owned"]],
+        skills: ["Evidence over ranking", "AI reads the path and names what the choices showed, and how the role often uses each skill.", ["No score", "Reflection next"]],
+        reflection: ["Energy is useful feedback", "The student can say how the work felt and add a note, or skip.", ["Optional", "Student voice"]],
+        next: ["What next?", "Share with a teacher or counsellor, or head back home to try another path.", ["Nothing sent automatically", "Student choice"]],
+        passport: ["Keep a revisable record", "The Career Passport keeps the latest path summary and skills. Students can delete it at any time.", ["Student-owned", "Deletable"]],
+        mentor: ["Human support stays central", "Students choose which passport sections mentors can see. Mentors use them to send study plans and pathways back.", ["Opt-in sharing", "Mentor plans"]]
+      };
+      const v = notes[state.screen] || notes.home;
+      const storage = cloud ? "Accounts and passports are stored in the cloud database. Mentors can only read sections a student has switched on. Avatar choices stay on this device." : "Local mode: cloud isn’t configured, so accounts and passports stay in this browser and AI features are off.";
+      return `<p class="side-kicker">Prototype notes</p><h2>${v[0]}</h2><p>${v[1]}</p><div class="side-divider"></div><p class="side-kicker">Product principles</p>${v[2].map(x => `<span class="note-pill">${x}</span>`).join("")}<div class="side-divider"></div><p class="side-kicker">Your data</p><p>${storage}</p>`;
+    }
+    function topbar(tag = "") { return `<div class="app-topbar"><span class="app-brand">carie AI</span><span class="app-top-tag">${tag}</span></div>`; }
+    const storyTop = () => `<div class="app-topbar"><span class="app-brand">carie AI</span><button class="pause-top" data-action="pause">‹ Pause &amp; exit</button></div>`;
+    function nav(active) {
+      return `<nav class="bottom-nav" aria-label="Main navigation">${[["home","⌂","Explore"],["passport","▤","Passport"],["mentor","♡","Mentor"]].map(([key,icon,label])=>`<button class="nav-item ${active===key?"active":""}" data-action="nav-${key}"><span>${icon}</span><span>${label}</span></button>`).join("")}</nav>`;
+    }
+    const segs = (n, total) => `<div class="seg-progress" aria-hidden="true">${Array.from({ length: total }, (_, i) => `<i class="${i < n ? "on" : ""}"></i>`).join("")}</div>`;
+    const stepHead = (label, n, total) => `<p class="step-label">${label}</p>${segs(n, total)}`;
+    const heartNote = text => `<div class="heart-note"><span aria-hidden="true">♡</span><span>${text}</span></div>`;
+    const actions = inner => `<div class="screen-actions">${inner}</div>`;
+    // A selectable card with an icon tile; `attrs` carries data-* values (already escaped).
+    const optionCard = (icon, title, copy, action, selected, attrs = "") => `<button class="choice-card icon-card ${selected ? "selected" : ""}" data-action="${action}" ${attrs} aria-pressed="${selected}"><span class="icon-tile" aria-hidden="true">${icon}</span><span class="icon-card-text"><span class="choice-title">${title}</span>${copy ? `<span class="choice-copy">${copy}</span>` : ""}</span><span class="choice-mark" aria-hidden="true"></span></button>`;
+    const AVATAR_LOOKS = {
+      "East Asian": ["#F1CBA8", "#1F3A33", false], "Southeast Asian": ["#C98E66", "#1F3A33", false], "South Asian": ["#A86E4B", "#1F3A33", false],
+      "Central Asian": ["#E6B48C", "#3B2A22", true], "Black": ["#7B4E33", "#1C1C1C", false], "White": ["#F2CDB0", "#8A6240", false],
+      "Hispanic": ["#C8916A", "#2E2219", false], "Middle Eastern": ["#D2A07A", "#1F2A2A", false], "Prefer not to say": ["#D9A27A", "#1F3A33", true]
+    };
+    let avatarSeq = 0;
+    // Simple illustrated avatar; the choices only change the drawing and stay on this device.
+    function avatarSvg(size = 96) {
+      const [skin, hair, glasses] = AVATAR_LOOKS[state.ethnicity] || AVATAR_LOOKS["Prefer not to say"];
+      const girl = state.gender === "Girl", boy = state.gender === "Boy", id = `av${++avatarSeq}`;
+      const hairBack = girl ? `<path d="M30 48 Q29 21 50 21 Q71 21 70 48 L73 78 Q61 73 50 73 Q39 73 27 78 Z" fill="${hair}"/>` : "";
+      const hairTop = boy ? `<path d="M33 45 Q31 23 50 22 Q69 23 67 45 Q61 32 50 33 Q39 32 33 45 Z" fill="${hair}"/>`
+        : girl ? `<path d="M33 47 Q32 24 50 23 Q68 24 67 47 Q63 33 50 32 Q37 33 33 47 Z" fill="${hair}"/>`
+        : `<path d="M32 49 Q30 23 50 22 Q70 23 68 49 Q65 35 57 33 Q48 39 39 35 Q34 39 32 49 Z" fill="${hair}"/>`;
+      const specs = glasses ? `<g fill="none" stroke="#2B3A35" stroke-width="1.6"><rect x="37.5" y="44" width="10" height="7.5" rx="2.5"/><rect x="52.5" y="44" width="10" height="7.5" rx="2.5"/><path d="M47.5 47.5h5"/></g>` : "";
+      return `<svg class="avatar-svg" width="${size}" height="${size}" viewBox="0 0 100 100" role="img" aria-label="Your avatar"><defs><clipPath id="${id}"><circle cx="50" cy="50" r="50"/></clipPath></defs><g clip-path="url(#${id})"><rect width="100" height="100" fill="#F3D4BB"/>${hairBack}<path d="M14 104 Q18 76 50 74 Q82 76 86 104 Z" fill="${girl ? "#85A08E" : "#1F6B55"}"/><rect x="44" y="60" width="12" height="15" rx="5" fill="${skin}"/><ellipse cx="50" cy="47" rx="17" ry="19" fill="${skin}"/>${hairTop}<circle cx="43.5" cy="48" r="1.9" fill="#2B3A35"/><circle cx="56.5" cy="48" r="1.9" fill="#2B3A35"/><path d="M44 56 Q50 61 56 56" stroke="#2B3A35" stroke-width="1.7" fill="none" stroke-linecap="round"/>${specs}</g></svg>`;
+    }
+    const GOOGLE_G = `<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.6 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.8 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.8-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.8-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.5 2.3-6.3 0-11.6-4.1-13.5-9.9l-7.8 6.1C6.6 42.6 14.6 48 24 48z"/></svg>`;
+    function registrationBody() {
+      if (booting) return `${topbar("")}<div class="screen-scroll"><p class="lead" style="margin-top:40px;text-align:center">Loading…</p></div>`;
+      if (state.screen === "landing") return `<div class="landing"><div><div class="landing-brand">carie AI</div><p>Your carie-er companion</p></div></div>${actions(btn("Start", "landing-start"))}`;
+      const error = state.authError ? `<p class="form-error" role="alert">${esc(state.authError)}</p>` : "";
+      if (state.authStep === "code") return `${topbar()}<div class="screen-scroll"><h1>Check your email.</h1><p class="lead">We sent a 6-digit code to <strong>${esc(state.authEmail)}</strong>. It may take a minute to arrive—check Spam too.</p><label class="field-label" for="auth-code">Enter your code</label><input id="auth-code" class="text-input" data-field="authCode" value="${esc(state.authCode)}" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="123456"><p class="microcopy">On this device, you can also tap the link in the email instead.</p>${error}<button class="pause-link" data-action="auth-send">Resend email</button></div>${actions(btn(state.authBusy?"Checking…":"Verify and continue","auth-verify","",state.authBusy?"disabled":"") + btn("Use a different email","auth-back","secondary"))}`;
+      const isStudent = state.authRole === "student";
+      const localNote = cloud ? "" : `<div class="callout"><strong>Local mode.</strong> ${cloudConfigured ? "The cloud service couldn’t be reached, so" : "Cloud isn’t configured yet, so"} accounts stay in this browser and the email isn’t verified.</div>`;
+      return `${topbar()}<div class="screen-scroll"><h1>Create your account</h1><p class="lead">Use a personal or school email to save your progress. Already registered? Just enter your email.</p><div class="registration-choices"><button class="registration-choice ${isStudent?"selected":""}" data-action="auth-role" data-role="student" aria-pressed="${isStudent}"><strong>Student</strong><small>Try careers through short stories and keep a Career Passport.</small></button><button class="registration-choice ${!isStudent?"selected":""}" data-action="auth-role" data-role="mentor" aria-pressed="${!isStudent}"><strong>Mentor</strong><small>See shared passports, then build study plans and offer pathways.</small></button></div><label class="field-label" for="auth-email">Enter your email address</label><input id="auth-email" class="text-input" type="email" data-field="authEmail" value="${esc(state.authEmail)}" placeholder="name@example.com" autocomplete="email" inputmode="email">${isStudent ? "" : `<label class="field-label" for="auth-name">Display name</label><input id="auth-name" class="text-input" data-field="authName" value="${esc(state.authName)}" placeholder="Your name" autocomplete="name" maxlength="80"><label class="field-label" for="auth-org">School or NGO · optional</label><input id="auth-org" class="text-input" data-field="authOrg" value="${esc(state.authOrg)}" placeholder="Partner organisation" autocomplete="organization">`}${error}${heartNote(cloud ? "We’ll email you a verification code. No password needed." : "Your account is saved in this browser.")}${localNote}</div>${actions(btn(state.authBusy?"Sending…":cloud?"Send verification code":"Create account","auth-send","",state.authBusy?"disabled":"") + (cloud ? `<div class="or-divider"><span>OR</span></div><button class="btn secondary google-btn" data-action="auth-google" ${state.authBusy?"disabled":""}>${GOOGLE_G}Continue with Google</button>` : ""))}`;
+    }
+    function aiSearchBox() {
+      return `<div class="ai-box"><p class="eyebrow" style="margin:0 0 7px">✦ Ask Carie AI</p><div class="ai-row"><label class="sr-only" for="ai-query">Ask a career question</label><input id="ai-query" class="text-input" data-field="aiQuery" value="${esc(state.aiQuery)}" placeholder="e.g. What does a civil engineer do all day?" maxlength="500" enterkeyhint="search"><button class="btn" data-action="ai-search" ${state.aiBusy?"disabled":""}>${state.aiBusy?"Thinking…":"Ask"}</button></div>${state.aiError?`<p class="form-error" role="alert">${esc(state.aiError)}</p>`:""}${state.aiAnswer?`<div class="summary-box ai-answer"><span class="tag">AI ANSWER · CHECK DETAILS WITH A COUNSELLOR</span><p>${formatAnswer(state.aiAnswer)}</p></div>`:""}</div>`;
+    }
+    function homeStoryCard() {
+      const st = state.story && state.storyRole === state.field ? view(state.story) : null;
+      const title = st ? st.storyTitle : state.field === "UX design" ? "The confusing sign-up" : `A first week in ${state.field}`;
+      const blurb = st ? st.setting : state.field === "UX design" ? "A community centre’s event page is losing visitors. Help the team make signing up easier." : "AI writes five everyday situations from this job for you to try.";
+      const label = state.inProgress && st ? "Resume your story" : "Try this story";
+      return `<div class="story-card"><img class="hero-img short" src="${imageForField(state.field)}" alt=""><h3>${esc(title)}</h3><p>${esc(blurb)}</p>${btn(label, "begin-story")}</div>`;
+    }
+    function screenBody() {
+      if (!me) return registrationBody();
+      const s = state.screen;
+      if (s === "welcome") return `${topbar()}<div class="screen-scroll">${stepHead("Getting started · Step 1 of 3", 1, 3)}<h1>Try a career. Discover what feels like you.</h1><p class="lead">Step into a short workplace story. Make choices, notice your skills, and see how the work feels.</p><img class="hero-img" src="./images/welcome.jpg" alt=""><label class="field-label" for="nickname">What should I call you?</label><input id="nickname" class="text-input" data-field="name" value="${esc(state.name)}" placeholder="Alex" autocomplete="nickname" maxlength="30">${heartNote("Not an exam. Not a career label. Just a place to start.")}</div>${actions(btn("Start", "to-avatar", "", state.name.trim()?"":"disabled"))}`;
+      if (s === "avatar") return `${topbar()}<div class="screen-scroll">${stepHead("Getting started · Step 2 of 3", 2, 3)}<h1>Make your story feel like yours.</h1><p class="lead">Choices are only for avatar personalisation—not careers, story difficulty or skill assessment.</p><div class="avatar-wrap">${avatarSvg(110)}<strong>${esc(state.name)}</strong></div><label class="field-label" for="ethnicity">Ethnicity</label><select id="ethnicity" class="text-input select-input" data-field="ethnicity">${ETHNICITIES.map(x=>`<option ${state.ethnicity===x?"selected":""}>${x}</option>`).join("")}</select><label class="field-label" for="gender">Gender</label><select id="gender" class="text-input select-input" data-field="gender">${GENDERS.map(x=>`<option ${state.gender===x?"selected":""}>${x}</option>`).join("")}</select><p class="microcopy">Saved only on this device. Mentors never see it.</p></div>${actions(btn("Continue", "to-start") + btn("Back", "back-welcome", "secondary"))}`;
+      if (s === "start") return `${topbar()}<div class="screen-scroll">${stepHead("Getting started · Step 3 of 3", 3, 3)}<h1>Where would you like to start?</h1><div class="avatar-wrap left">${avatarSvg(88)}</div><p class="lead">Hey ${esc(state.name || "there")}, you don’t need to have it all figured out.</p><div class="choice-grid"><button class="choice-card icon-card nav-card" data-action="explore-careers"><span class="icon-tile" aria-hidden="true">🧭</span><span class="icon-card-text"><span class="choice-title">Explore careers</span><span class="choice-copy">I have something in mind.</span><span class="card-link">Choose an industry, then a field</span></span><span class="chev" aria-hidden="true">›</span></button><button class="choice-card icon-card nav-card" data-action="start-quiz"><span class="icon-tile" aria-hidden="true">✨</span><span class="icon-card-text"><span class="choice-title">I don’t know yet</span><span class="choice-copy">Help me find a starting point.</span><span class="card-link">Try five short questions</span></span><span class="chev" aria-hidden="true">›</span></button></div>${heartNote("Either route is a good start. You can explore something different later.")}</div>${actions(btn("Back", "back-avatar", "secondary"))}`;
+      if (s === "selection") return `${topbar()}<div class="screen-scroll">${stepHead("Choose a path · Industry", 1, 2)}<h1>What are you curious about?</h1><label class="field-label" for="job-query">Type any job</label><p class="microcopy" style="margin-top:-2px">AI generates a story so you can try it before choosing.</p><div class="search-row"><input id="job-query" class="text-input" data-field="jobQuery" value="${esc(state.jobQuery)}" placeholder="e.g. Pilot, florist, game designer" maxlength="60" enterkeyhint="search"><button class="btn" data-action="job-search">Search</button></div>${state.jobError?`<p class="form-error" role="alert">${esc(state.jobError)}</p>`:""}<h3 style="margin-top:22px">Don’t know yet?</h3><p class="microcopy" style="margin-top:0">Choose an industry from below.</p><div class="industry-list">${INDUSTRIES.map(ind=>`<button class="industry-row" data-action="pick-industry" data-key="${ind.key}"><img src="${industryImage(ind.key)}" alt=""><span><strong>${esc(ind.name)}</strong><small>${esc(ind.detail)}</small></span></button>`).join("")}</div>${aiSearchBox()}</div>${actions(btn("Back", "to-start", "secondary"))}${nav("home")}`;
+      if (s === "industry") {
+        const ind = INDUSTRIES.find(i => i.key === state.industry) || INDUSTRIES[0];
+        return `${topbar()}<div class="screen-scroll">${stepHead("Choose a path · Field", 2, 2)}<h1>Try a role in ${esc(ind.name.toLowerCase())}.</h1><img class="hero-img short" src="${industryImage(ind.key)}" alt=""><div class="choice-grid">${ind.fields.map(f => optionCard(jobIcon(f), esc(f), esc(jobDetail(f)), "pick-field", state.pickField === f, `data-name="${esc(f)}"`)).join("")}</div></div>${actions(btn("Continue", "field-continue", "", state.pickField?"":"disabled") + btn("Back", "to-selection", "secondary"))}`;
+      }
+      if (s === "failsafe") return `${topbar()}<div class="screen-scroll">${stepHead("Choose a path · Field", 2, 2)}<h1>Sorry, we couldn’t find ${esc(state.relatedFor)}</h1><p class="lead">There isn’t enough reliable information to create this story yet. Try a related job instead.</p><h3 style="margin-top:18px">Related jobs you can try</h3><div class="choice-grid">${state.related.length ? state.related.map((r, i) => optionCard(jobIcon(r.title), esc(r.title), esc(r.detail), "pick-related", state.relatedPick === i, `data-index="${i}"`)).join("") : `<p class="microcopy">No related jobs came back. Try searching for another job.</p>`}</div></div>${actions(btn("Continue", "related-continue", "", state.relatedPick < 0 ? "disabled" : "") + btn("Search another job", "to-selection", "secondary"))}`;
+      if (s === "quiz") {
+        const q = quiz[state.quizIndex], picked = state.answers[state.quizIndex];
+        return `${topbar()}<div class="screen-scroll">${stepHead(`Question ${state.quizIndex + 1} of ${quiz.length}`, state.quizIndex + 1, quiz.length)}<h1>${esc(q.q)}</h1><div class="choice-grid">${q.a.map((a, i) => optionCard(a.icon, esc(a.t), esc(a.c), "quiz-answer", picked === i, `data-index="${i}"`)).join("")}</div><p class="microcopy">There are no right or wrong answers.</p></div>${actions(btn(state.quizIndex === quiz.length - 1 ? "See my fields" : "Continue", "next-quiz", "", picked === undefined ? "disabled" : "") + btn("Back", "back-quiz", "secondary"))}`;
+      }
+      if (s === "suggestions") return `${topbar()}<div class="screen-scroll"><h1>Here are three fields for you to try.</h1><p class="lead">These are starting points based on your answers—not a prediction of what you can do.</p><h3 style="margin-top:18px">Related jobs you can try</h3><div class="choice-grid">${state.recs.map(f => optionCard(jobIcon(f), esc(f), esc(jobDetail(f)), "pick-field", state.pickField === f, `data-name="${esc(f)}"`)).join("")}</div>${aiSearchBox()}</div>${actions(btn("Continue", "field-continue", "", state.pickField?"":"disabled") + btn("Search another job", "to-selection", "secondary"))}`;
+      if (s === "home") {
+        const fromMentor = state.myPlans.length + state.myPathways.length;
+        return `${topbar()}<div class="screen-scroll"><div class="home-head"><div><h1 style="margin-bottom:4px">Welcome, ${esc(state.name || "there")}</h1><p class="lead">What could your next chapter feel like?</p></div>${avatarSvg(72)}</div>${fromMentor?`<button class="mobile-card-link inbox-link" data-action="nav-mentor"><h3>✉ ${fromMentor} from your mentor${fromMentor>1?"s":""}</h3><p>Plans and pathways a mentor prepared for you.</p></button>`:""}<p class="field-label">Your current field</p><button class="field-select" data-action="to-selection"><span>${esc(state.field || "Choose a field")}</span><span aria-hidden="true">›</span></button>${homeStoryCard()}<button class="passport-link" data-action="nav-passport"><span class="icon-tile" aria-hidden="true">▤</span><span><strong>Career Passport</strong><small>${state.savedStory ? `${esc(view(state.savedStory).storyTitle)} · ${esc(view(state.savedStory).role)}` : "No entries yet. Finish a story to see what you explored."}</small></span><span aria-hidden="true">›</span></button>${heartNote("Try out the work. You don’t need experience to begin.")}</div>${nav("home")}`;
+      }
+      if (s === "loading") return loadingBody();
+      if (s === "story") return storyBody();
+      if (s === "recap") return recapBody();
+      if (s === "skills") return skillsBody();
+      if (s === "reflection") return `${topbar()}<div class="screen-scroll"><h1>Did this work feel energising or draining?</h1><p class="lead">Think about how the work felt, not how well you think you did.</p><div class="choice-grid">${[["Very draining","I felt worn out.","🪫"],["A little draining","It took more energy than it gave.","🔋"],["In between","Some parts gave energy, some took it.","⚖️"],["A little energising","I felt interested and wanted to try more.","🌤️"],["Very energising","I felt excited to keep going.","☀️"]].map(([t,c,icon])=>optionCard(icon, t, c, "energy", state.energy===t, `data-value="${esc(t)}"`)).join("")}</div><label class="field-label" for="reflection">What made it feel that way? · optional</label><textarea class="text-area" id="reflection" data-field="reflection" placeholder="A few words are enough…">${esc(state.reflection)}</textarea>${heartNote("Your energy and interest are separate from the skills you explored.")}</div>${actions(btn("Finish reflection", "finish-reflection") + btn("Skip for now", "finish-reflection", "secondary"))}`;
+      if (s === "next") {
+        const role = view(state.savedStory)?.role || state.field;
+        return `${topbar()}<div class="screen-scroll"><h1>What would you like to try next?</h1><div class="avatar-wrap left">${avatarSvg(96)}</div><p class="lead">You’ve tried ${esc(role)}, ${esc(state.name || "friend")}. Keep this story, or take a different path.</p><div class="choice-grid" style="margin-top:16px"><button class="choice-card icon-card nav-card" data-action="nav-mentor"><span class="icon-tile" aria-hidden="true">↗</span><span class="icon-card-text"><span class="choice-title">Share with a teacher or counsellor</span><span class="choice-copy">Preview a summary and choose what to include. Nothing is sent automatically.</span></span><span class="chev" aria-hidden="true">›</span></button><button class="choice-card icon-card nav-card" data-action="to-selection"><span class="icon-tile" aria-hidden="true">🧭</span><span class="icon-card-text"><span class="choice-title">Try another field</span><span class="choice-copy">Pick a new job or industry to explore.</span></span><span class="chev" aria-hidden="true">›</span></button></div>${heartNote("You choose what to explore and what to share.")}</div>${actions(btn("Back to Home", "nav-home", "secondary"))}`;
+      }
+      if (s === "passport") return passportBody();
+      if (s === "mentor") return studentMentorBody();
+      return `${topbar()}<div class="screen-scroll"><h1>Keep exploring.</h1></div>${actions(btn("Back to Home", "nav-home"))}${nav("home")}`;
+    }
+    const shareRows = [
+      ["toggle-career-share","sharedCareer","Field and story","The field you’re exploring and the story you finished"],
+      ["toggle-skills-share","shareSkills","Skills explored","Skill clues from your story choices"],
+      ["toggle-decisions-share","shareDecisions","Story decisions","The choices you made in the story"],
+      ["toggle-reflection","includeReflection","Reflection and energy","How the work felt and your optional note"]
+    ];
+    const shareToggles = () => shareRows.map(([action,key,title,copy])=>`<div class="privacy-row"><span><strong>${title}</strong><small>${copy}</small></span><button class="switch ${state[key]?"on":""}" data-action="${action}" aria-label="Share ${title}" aria-pressed="${state[key]}"></button></div>`).join("");
+    function studentMentorBody() {
+      const shared = shareRows.filter(([, key])=>state[key]).map(([, , title])=>title);
+      const plans = state.myPlans.map(p=>{
+        const tasks = p.tasks || [], done = tasks.filter(t=>t.done).length;
+        return `<div class="skill-card"><div class="passport-meta"><span class="tag">Plan from ${esc(p.mentor_name || "your mentor")}</span><span class="task-meta">${fmtDate(p.created_at)} · ${done}/${tasks.length} done</span></div><h3>${esc(p.goal)}</h3>${tasks.map((t,i)=>`<div class="list-row task-row"><button class="task-toggle ${t.done?"done":""}" data-action="plan-task-toggle" data-plan="${esc(p.id)}" data-index="${i}" aria-label="${t.done?"Mark incomplete":"Mark complete"}: ${esc(t.title)}">${t.done?"✓":""}</button><span style="min-width:0;flex:1"><strong>${esc(t.title)}</strong><small>${esc(t.day)} · ${Number(t.minutes)||15} min</small></span></div>`).join("")}</div>`;
+      }).join("");
+      const paths = state.myPathways.map(p=>{
+        const route = pathwayRoutes.find(r=>r.key===p.route) || pathwayRoutes[0];
+        return `<div class="skill-card"><div class="skill-title"><span class="skill-dot">${route.icon}</span>${esc(route.title)}</div><h3>${esc(p.title)}</h3>${p.note?`<p>${esc(p.note)}</p>`:""}${p.opportunity?`<p style="margin-top:6px"><strong>Try:</strong> ${esc(p.opportunity)}</p>`:""}<p class="task-meta" style="margin-top:7px">From ${esc(p.mentor_name || "your mentor")} · ${fmtDate(p.created_at)}</p></div>`;
+      }).join("");
+      return `${topbar("Mentor support")}<div class="screen-scroll"><p class="eyebrow">Human support, when you want it</p><h1>Share what helps, get a plan back.</h1><p class="lead">Choose which parts of your Career Passport mentors can see. They use it to prepare a study plan and pathways for you.</p><h3 style="margin-top:20px">What mentors can see</h3>${shareToggles()}<div class="privacy-row"><span><strong>I’d like a check-in</strong><small>Mentors see your name and that you asked</small></span><button class="switch ${state.requestedCheckIn?"on":""}" data-action="request-checkin" aria-label="Request a mentor check-in" aria-pressed="${state.requestedCheckIn}"></button></div><div class="callout">${shared.length||state.requestedCheckIn?`<strong>Visible to registered mentors:</strong> your nickname${state.schoolStage?", school stage":""}${shared.length?`, ${shared.join(", ").toLowerCase()}`:""}. Turn a switch off any time to hide it again.`:"<strong>Nothing is shared.</strong> Mentors can’t see you until you turn on a section or ask for a check-in."}</div><div class="bottom-actions">${btn("Preview what mentors see", "open-share", "secondary")}</div><p class="eyebrow" style="margin-top:24px">Study plans from your mentor</p>${plans || `<p class="microcopy">No plans yet. Once you share your passport, a mentor can prepare one for you.</p>`}<p class="eyebrow" style="margin-top:22px">Pathways offered to you</p><div class="skill-stack" style="margin-top:0">${paths || `<p class="microcopy">No pathways yet. Routes and requirements vary — check details with a school counsellor before deciding.</p>`}</div><div class="callout"><strong>Support boundary:</strong> For stress, safety or personal concerns, talk with a trusted adult, teacher or school counsellor.</div></div>${nav("mentor")}`;
+    }
+    // ---------- Job simulation ----------
+    // AI-written stories send their scenario blurb as the picture brief (no extra Gemini call).
+    const scenarioImgArgs = (st, sc) => sc.imgScene ? { scene: sc.imgScene, question: sc.imgQuestion } : { scene: `${st.setting} ${sc.blurb}`.slice(0, 400), question: sc.question, brief: `${sc.title}. ${sc.blurb}`.slice(0, 600) };
+    // AI text (a story, a passport entry) is written in the language that was on at the time.
+    // view() returns a translated copy for the current language: AI translates it once, the
+    // server keeps it, and the copy is stored on the object as obj.tr[lang]. The original is
+    // never changed, so pictures and the saved passport keep using it.
+    const pendingTr = new WeakSet(), failedTr = new WeakSet();
+    const textOnly = v => typeof v === "string" ? v : Array.isArray(v) ? v.map(textOnly) : v && typeof v === "object"
+      ? Object.fromEntries(Object.entries(v).filter(([k, x]) => !["tr", "lang", "builtin", "imgScene", "imgQuestion"].includes(k) && x != null && typeof x !== "number" && typeof x !== "boolean").map(([k, x]) => [k, textOnly(x)])) : v;
+    // Copies translated strings onto the original's shape; anything missing keeps the original.
+    const mergeText = (src, out) => typeof src === "string" ? (typeof out === "string" && out.trim() ? out : src)
+      : Array.isArray(src) ? src.map((x, i) => mergeText(x, Array.isArray(out) ? out[i] : undefined))
+      : src && typeof src === "object" ? Object.fromEntries(Object.entries(src).map(([k, x]) => [k, k === "tr" ? undefined : mergeText(x, out?.[k])])) : src;
+    function view(obj) {
+      if (!obj || obj.builtin) return obj;   // the built-in UX story uses the phrase list instead
+      const want = LANG === "zh" ? "zh-HK" : "en";
+      if ((obj.lang || "en") === want) return obj;
+      if (obj.tr?.[want]) return obj.tr[want];
+      if (cloud && me && !pendingTr.has(obj) && !failedTr.has(obj)) translateObj(obj, want);
+      return obj;
+    }
+    async function translateObj(obj, want) {
+      pendingTr.add(obj);
+      state.toast = "Translating this story…";
+      try {
+        const r = await db.ai("translate", { data: textOnly(obj), to: want });
+        obj.tr = { ...(obj.tr || {}), [want]: { ...mergeText(obj, r.data), lang: want } };
+        delete obj.tr[want].tr;
+        if (state.toast === "Translating this story…") state.toast = "";
+      } catch (err) { failedTr.add(obj); state.toast = `Couldn’t translate this story: ${err.message}`; }
+      pendingTr.delete(obj);
+      if (me) render();
+    }
+    function sceneImage(i) {
+      const img = storyImages[i], sc = state.story?.scenarios[i];
+      if (img?.status === "ready") return `<div class="scene-card has-image"><img src="${esc(img.src)}" alt="AI illustration: ${esc(img.summary || sc?.title || "")}"><span class="scene-ai-tag">AI image</span></div>`;
+      // The status sits under the drawing, not on it, so it never covers the desk.
+      const status = img?.status === "loading" ? `<p class="scene-status" role="status">✦ Generating a picture of this moment…</p>` : "";
+      const error = img?.status === "error" ? `<p class="microcopy image-error">Image unavailable: ${esc(img.error)} <button class="small-button" data-action="retry-image">Try again</button></p>` : "";
+      return `<div class="scene-card"><span class="scene-window"></span><span class="scene-desk"></span><span class="scene-laptop"></span><span class="scene-plant"></span><span class="scene-person"></span></div>${status}${error}`;
+    }
+    // Each scenario's picture is made once on the server (AI brief → Seedream) and then reused.
+    // A picture takes 20–40 s; when the server is busy a request can fail to start, so it is
+    // retried quietly a couple of times before the student sees an error.
+    const IMAGE_RETRY_DELAYS = [4000, 10000];
+    async function ensureStoryImage(i = state.storyIndex) {
+      const st = state.story, sc = st?.scenarios[i];
+      if (!cloud || !sc || storyImages[i]) return;   // pictures need the cloud function; local mode keeps the drawn scene
+      const token = st;
+      storyImages[i] = { status: "loading" };
+      for (let attempt = 0; ; attempt++) {
+        try { const r = await db.ai("image", scenarioImgArgs(st, sc)); if (state.story !== token) return; storyImages[i] = { status: "ready", src: r.image, summary: r.summary }; break; }
+        catch (err) {
+          if (state.story !== token) return;
+          if (attempt < IMAGE_RETRY_DELAYS.length) { await new Promise(r => setTimeout(r, IMAGE_RETRY_DELAYS[attempt])); if (state.story !== token) return; continue; }
+          storyImages[i] = { status: "error", error: err.message }; break;
+        }
+      }
+      if (!me) return;
+      if (state.screen === "loading") maybeEnterStory();
+      else if (state.screen === "story") render();
+    }
+    // One picture at a time, in scene order: several long picture requests at once can
+    // exceed what the cloud function will start (it then fails with a boot error).
+    async function prefetchStoryImages() {
+      const st = state.story;
+      if (!cloud || !st) return;
+      for (let i = 0; i < st.scenarios.length && state.story === st; i++) await ensureStoryImage(i);
+    }
+    function clearStoryImages() { Object.keys(storyImages).forEach(k => delete storyImages[k]); }
+
+    // Writes (or loads the saved) story for a role. The loading screen waits for the
+    // story text and the first picture, as in the design flow.
+    let storyRequest = 0;
+    async function startStory(role) {
+      role = String(role || "").trim().slice(0, 60);
+      if (!role) return;
+      const req = ++storyRequest;
+      const begin = () => {
+        clearStoryImages();
+        Object.assign(state, { screen: "loading", storyRole: role, story: null, storyError: "", inProgress: false, storyIndex: 0, storyStage: "intro", decisions: [], selected: -1, showModal: "" });
+      };
+      if (role.toLowerCase() === "ux design") { begin(); state.story = builtinStory(); state.field = "UX design"; storyReady(req); return; }
+      // "Checking your field": stays over the current page while AI checks there is enough
+      // reliable information for the job; the student can go back while it runs.
+      Object.assign(state, { showModal: "verify", verifyRole: role });
+      render();
+      try {
+        const r = await db.ai("story", { role });
+        if (req !== storyRequest) return;
+        if (!r.ok) {
+          Object.assign(state, { related: r.related || [], relatedFor: role, relatedPick: -1, screen: "failsafe", showModal: "" });
+          render(); return;
+        }
+        begin();
+        state.story = { ...r.story, lang: LANG === "zh" ? "zh-HK" : "en" }; state.field = role;
+        storyReady(req);
+      } catch (err) { if (req !== storyRequest) return; begin(); state.storyError = err.message; render(); }
+    }
+    function storyReady(req) {
+      state.inProgress = true;
+      syncPassport();
+      prefetchStoryImages();
+      render();
+      setTimeout(() => { if (req === storyRequest && state.screen === "loading" && state.story) enterStory(); }, 40000);
+      maybeEnterStory();
+    }
+    function maybeEnterStory() {
+      const img = storyImages[0];
+      if (state.screen === "loading" && state.story && (!cloud || (img && img.status !== "loading"))) enterStory();
+      else if (state.screen === "loading") render();
+    }
+    function enterStory() { state.screen = "story"; state.storyStage = "intro"; render(); }
+
+    function loadingBody() {
+      const role = state.storyRole || state.field;
+      const preview = view(state.story)?.roleIntro || (role === "UX design" ? builtinStory().roleIntro : `Getting ready to show you what a day in ${role} can look like.`);
+      const status = state.storyError
+        ? `<div class="callout"><strong>Couldn’t write this story.</strong><br>${esc(state.storyError)}</div><div class="bottom-actions">${btn("Try again", "story-retry")}${role !== "UX design" ? btn("Try the sample UX story", "story-sample", "secondary") : ""}</div>`
+        : `<div class="loading-row">${avatarSvg(56)}<div><strong>${state.story ? "Drawing your first scene…" : "Finding your first scene…"}</strong><small>Putting you in the story.</small></div></div>`;
+      return `${storyTop()}<div class="screen-scroll"><h1>Your story is taking shape...</h1><img class="hero-img ${state.storyError ? "" : "pulse"}" src="${imageForField(role)}" alt="">${status}<p class="role-line">Role preview · ${esc(role)}</p><p class="lead">${esc(preview)}</p>${heartNote("You’ll make everyday choices, not take a test. There’s no single perfect path.")}</div>`;
+    }
+    function storyBody() {
+      const st = view(state.story);
+      if (!st) return `${topbar()}<div class="screen-scroll"><h1>Story not found.</h1></div>${actions(btn("Back to Home", "nav-home"))}`;
+      const total = st.scenarios.length, i = Math.min(state.storyIndex, total - 1), sc = st.scenarios[i];
+      if (state.storyStage === "intro") return `${storyTop()}<div class="screen-scroll"><p class="step-label">Scene ${i + 1} of ${total}</p><h1>${esc(i === 0 ? st.storyTitle : sc.title)}</h1>${sceneImage(i)}<p class="role-line">Your role · ${esc(st.roleTitle)}</p><p class="lead">${esc(sc.blurb)}</p><p class="microcopy">Take your time reading. Your choices will shape what happens next.</p></div>${actions(btn("What happens next?", "to-decision"))}`;
+      if (state.storyStage === "decision") return `${storyTop()}<div class="screen-scroll">${stepHead(`Decision ${i + 1} of ${total}`, i + 1, total)}<h1>${esc(sc.question)}</h1><div class="choice-grid">${sc.options.map((o, n) => choice(esc(o.title), esc(o.copy), "story-choice", state.selected === n, "field-card")).join("")}</div>${sc.help?.term ? `<button class="word-help" data-action="word-help">ⓘ &nbsp; Word help · ${esc(sc.help.term)}</button>` : ""}<p class="microcopy">Select one option, then choose it to continue. Each choice has a trade-off.</p></div>${actions(btn("Choose this", "choose-story", "", state.selected < 0 ? "disabled" : ""))}`;
+      const o = sc.options[Math.max(0, state.decisions[i] ?? state.selected)];
+      const nextSc = st.scenarios[i + 1];
+      return `${storyTop()}<div class="screen-scroll">${stepHead(`Decision ${i + 1} of ${total}`, i + 1, total)}<h1>${esc(o.outcomeHeading || youDid(o.title))}</h1>${sceneImage(i)}<p class="lead">${esc(o.outcome)}</p>${nextSc ? `<p class="microcopy">Up next: ${esc(nextSc.label || nextSc.title)}</p>` : `<p class="microcopy">That was the last decision. Let’s look at the path you took.</p>`}</div>${actions(btn("Continue", nextSc ? "next-scene" : "to-recap"))}`;
+    }
+    // The finished path is saved to the passport straight away; AI then reads it for skills.
+    function finishPath() {
+      const st = view(state.story);   // the passport keeps the language the student read
+      const path = st.scenarios.map((sc, i) => { const o = sc.options[state.decisions[i]] || sc.options[0]; return { label: sc.label || sc.title, choice: o.title, outcome: o.outcome, skill: o.skill }; });
+      const fallback = [];
+      st.scenarios.forEach((sc, i) => { const o = sc.options[state.decisions[i]]; if (o?.skill && !fallback.some(k => k.skill === o.skill)) fallback.push({ skill: o.skill, showed: o.evidence || "", involves: "" }); });
+      Object.assign(state, { savedStory: { role: state.field, storyTitle: st.storyTitle, roleTitle: st.roleTitle, path, skills: fallback.slice(0, 5), lang: st.lang || "en" }, saved: true, inProgress: false, screen: "recap", energy: "", reflection: "" });
+      syncPassport();
+      readSkills();
+    }
+    async function readSkills() {
+      const target = state.savedStory;
+      state.skillsBusy = true; render();
+      try {
+        const r = await db.ai("skills", { role: target.role, path: target.path.map(p => ({ scenario: p.label, choice: p.choice, outcome: p.outcome })) });
+        if (state.savedStory === target && r.skills?.length) { target.skills = r.skills; delete target.tr; syncPassport(); }
+      } catch (err) { console.warn("skills:", err.message); }
+      state.skillsBusy = false; render();
+    }
+    const pathList = s => `<ol class="path-list">${s.path.map((p, n) => `<li><span class="icon-tile" aria-hidden="true">${n + 1}</span><div><p class="path-label">${n + 1} · ${esc(p.label)}</p><strong>${esc(p.choice)}</strong><small>${esc(p.outcome)}</small></div></li>`).join("")}</ol>`;
+    function recapBody() {
+      const s = view(state.savedStory);
+      if (!s) return passportBody();
+      return `${topbar()}<div class="screen-scroll"><h1>Here’s the path you took.</h1><span class="tag">${esc(s.storyTitle)} · ${esc(s.role)}</span><p class="lead" style="margin-top:12px">Five choices, each with a trade-off. This is ${esc(state.name || "your")}’s route through the story.</p>${pathList(s)}<p class="microcopy">Saved to your Career Passport automatically. You can delete it there any time.</p></div>${actions(btn(state.skillsBusy ? "Reading your choices…" : "Explore your skills", "to-skills", "", state.skillsBusy ? "disabled" : ""))}`;
+    }
+    const skillBlocks = s => s.skills.map(k => `<div class="skill-block"><h3>${esc(k.skill)}</h3><p class="kicker">What this story showed</p><p>${esc(k.showed)}</p>${k.involves ? `<p class="kicker">What the role often involves</p><p>${esc(k.involves)}</p>` : ""}</div>`).join("");
+    function skillsBody() {
+      const s = view(state.savedStory);
+      if (!s) return passportBody();
+      return `${topbar()}<div class="screen-scroll"><h1>Skills you explored.</h1><p class="lead">This story offers clues about behaviours you tried—not a score of your ability.</p><div class="skill-stack">${skillBlocks(s)}</div>${heartNote("One story is a starting point—not a verdict on your potential.")}<p class="microcopy">Role expectations vary by workplace. These are examples, not validated thresholds.</p></div>${actions(btn("Reflect on the experience", "to-reflection"))}`;
+    }
+    function skillCardsText() { return esc(skillList().map(k => k.skill).join(" · ")); }
+    function passportBody() {
+      const s = view(state.savedStory);
+      if (!s) return `${topbar()}<div class="screen-scroll"><h1>Your Career Passport is ready.</h1><p class="lead">Finish a story to save the path you took, the skills you explored and how the work felt.</p><img class="hero-img" src="./images/welcome.jpg" alt="">${heartNote("Your passport is for exploration. It does not rank you or choose a future for you.")}</div>${actions(btn("Explore a career story", "nav-home"))}${nav("passport")}`;
+      const shared = shareRows.filter(([, key])=>state[key]).map(([, , title])=>title);
+      return `${topbar()}<div class="screen-scroll"><p class="step-label">Career Passport · ${cloud ? "Saved to the cloud" : "Saved in this browser"}</p><h1>Your experience, in your words.</h1><div class="passport-hero"><div class="passport-meta"><span class="passport-badge">▤</span><span class="tag">${esc(s.role)} · Completed</span></div><h2>${esc(s.storyTitle)}</h2></div><h3 style="margin-top:18px">The path you took</h3>${pathList(s)}<h3 style="margin-top:18px">Skills you explored</h3><div class="skill-stack">${skillBlocks(s)}</div>${state.energy?`<div class="callout"><strong>How it felt:</strong> ${esc(state.energy)}${state.reflection?`<br>${esc(state.reflection)}`:""}</div>`:""}<div class="callout"><strong>Mentors can see:</strong> ${shared.length?esc(shared.join(", ")):"nothing yet — your passport is private."}</div><div class="bottom-actions">${btn("Choose what mentors see", "nav-mentor")}${btn("Preview a summary", "open-share", "secondary")}</div><button class="pause-link danger" data-action="delete-story">Delete this story from my passport</button></div>${nav("passport")}`;
+    }
+    function modalBody() {
+      if (!state.showModal) return "";
+      let inner = "";
+      if (state.showModal === "pause") inner = `<div class="modal-icon" aria-hidden="true">❚❚</div><h2>Take a breather?</h2><p>Your story and choices can be saved. Come back to this decision when you’re ready.</p><div class="modal-actions">${btn("Keep playing", "close-modal")}${btn("Save and leave", "save-leave", "secondary")}</div><p class="microcopy">Save and leave returns you to Home. It doesn’t complete the story or add a passport entry.</p>`;
+      if (state.showModal === "word") { const h = view(state.story)?.scenarios[state.storyIndex]?.help || {}; inner = `<p class="eyebrow">Word help</p><h2>${esc(h.term)}</h2><p>${esc(h.meaning)}</p>${h.example ? `<div class="callout"><strong>For example</strong><br>${esc(h.example)}</div>` : ""}<div class="modal-actions">${btn("Got it, back to the story", "close-modal")}</div>`; }
+      if (state.showModal === "delete") inner = `<h2>Delete this story?</h2><p>This removes the path summary, skills and reflection from your Career Passport${cloud ? ", including the cloud copy" : ""}. Mentors will no longer see them.</p><div class="modal-actions">${btn("Delete story", "confirm-delete", "danger")}${btn("Keep it", "close-modal", "secondary")}</div>`;
+      if (state.showModal === "share") {
+        const display = state.shareName || state.name || "Alex", s = view(state.savedStory);
+        const none = !state.sharedCareer && !state.shareSkills && !state.shareDecisions && !state.includeReflection;
+        inner=`<p class="eyebrow">Share preview</p><h2>What mentors will see.</h2><p>Switch sections on or off. Changes apply to your passport straight away.</p>${shareToggles()}<div class="share-preview"><span class="tag">CARIE AI · CAREER PASSPORT</span><h3 id="preview-name" style="margin-top:10px">${esc(display)}</h3>${state.sharedCareer?`<p><strong>Exploring:</strong> ${esc(state.field||"Not chosen yet")}${s?` · Finished “${esc(s.storyTitle)}”`:" · No story finished yet"}</p>`:""}${state.shareSkills?`<p><strong>Skills explored:</strong> ${skillCardsText() || "None yet"}</p>`:""}${state.shareDecisions?`<p><strong>Story decisions:</strong> ${s?.path.length?s.path.map(p=>esc(p.choice)).join(" · "):"None yet"}</p>`:""}${state.includeReflection?`<p><strong>How it felt:</strong> ${esc(state.energy||"Not noted")}${state.reflection?` — “${esc(state.reflection)}”`:""}</p>`:""}${none?"<p>No sections selected. Mentors can’t see your passport.</p>":""}</div><div class="modal-actions">${btn("Copy summary", "copy-summary")}${btn("Done", "close-modal", "secondary")}</div>`;
+      }
+      if (state.showModal === "verify") return `<div class="modal-backdrop center"><section class="modal verify" role="dialog" aria-modal="true" aria-labelledby="verify-title"><h2 id="verify-title">Checking your field</h2><p>We’re checking whether there’s enough reliable information to create 5 realistic scenarios.</p><p class="verify-field">Your selected field · ${esc(state.verifyRole)}</p><div class="verify-box" role="status"><span class="spinner" aria-hidden="true"></span><strong>Verification in progress</strong><small>Looking at day-to-day tasks, decisions, and real-world context.</small></div><div class="modal-actions">${btn("Go back", "verify-cancel", "secondary")}</div></section></div>`;
+      return `<div class="modal-backdrop" data-action="backdrop"><section class="modal" role="dialog" aria-modal="true">${inner}</section></div>`;
+    }
+
+    // ---------- Mentor workspace ----------
+    function sharedBlock(title, shared, content) {
+      return `<div class="shared-block"><strong>${title} ${shared?"":`<span class="status-chip gray">Not shared</span>`}</strong>${shared?content:""}</div>`;
+    }
+    function mentorBody() {
+      const q = (state.mentorSearch || "").toLowerCase().trim();
+      const plansFor = sid => state.mentorPlans.filter(p=>p.student_id===sid);
+      const progressOf = sid => { const tasks = plansFor(sid).flatMap(p=>p.tasks||[]); return tasks.length ? Math.round(tasks.filter(t=>t.done).length / tasks.length * 100) : null; };
+      const error = state.mentorError ? `<div class="callout"><strong>Couldn’t load data:</strong> ${esc(state.mentorError)}</div>` : "";
+      const toastHtml = state.toast ? `<div class="toast fixed" role="status">${esc(state.toast)}</div>` : "";
+      if (state.mentorView === "detail") {
+        const s = state.students.find(x=>x.student_id===state.mentorStudentId);
+        if (!s) return `<div class="workspace"><button class="small-button" data-action="mentor-back">← Back to overview</button><div class="empty-state">This student is no longer sharing their passport.</div></div>${toastHtml}`;
+        const plans = plansFor(s.student_id), paths = state.mentorPathways.filter(p=>p.student_id===s.student_id), notes = state.mentorNotes.filter(n=>n.student_id===s.student_id);
+        const passport = `<div class="panel"><div class="panel-head"><div><h2>Shared Career Passport</h2><p>Only sections ${esc(s.name)} switched on are visible.</p></div>${s.requested_checkin?`<span class="status-chip amber">Check-in requested</span>`:""}</div>
+          ${sharedBlock("Field and story", s.share_field, `<p>${esc(s.field||"Not chosen yet")} · ${s.saved?esc(s.story||"Story finished"):"No story finished yet"}</p>`)}
+          ${sharedBlock("Skills explored", s.share_skills, (s.skills||[]).length?`<ul>${s.skills.map(k=>`<li><strong>${esc(k.skill)}</strong> — ${esc(k.evidence)}</li>`).join("")}</ul>`:`<p>No skills recorded yet.</p>`)}
+          ${sharedBlock("Story decisions", s.share_decisions, (s.decisions||[]).length?`<ul>${s.decisions.map(d=>`<li>${esc(d.title)} <small>(${esc(d.skill)})</small></li>`).join("")}</ul>`:`<p>No decisions yet.</p>`)}
+          ${sharedBlock("Reflection and energy", s.share_reflection, `<p>${esc(s.energy||"Energy not noted")}${s.reflection?` — “${esc(s.reflection)}”`:""}</p>`)}</div>`;
+        const planBuilder = `<div class="panel"><div class="panel-head"><div><h2>Make a study plan</h2><p>Short, flexible sessions. ${esc(s.name)} can tick them off and you’ll see progress.</p></div></div><label class="field-label" for="plan-goal" style="margin-top:0">Goal</label><input id="plan-goal" class="text-input" data-field="planGoal" value="${esc(state.planGoal)}" placeholder="e.g. Build a study rhythm and try one UX taster">${state.planTasks.length?`<div style="margin-top:10px">${state.planTasks.map((t,i)=>`<div class="draft-task"><span class="row-icon">${i+1}</span><span style="flex:1"><strong>${esc(t.title)}</strong> · ${esc(t.day)} · ${t.minutes} min</span><button class="small-button" data-action="plan-remove-task" data-index="${i}">Remove</button></div>`).join("")}</div>`:""}<label class="field-label" for="plan-task">Add a task</label><div class="plan-add-row"><input id="plan-task" class="text-input" data-field="planTaskDraft" value="${esc(state.planTaskDraft)}" placeholder="e.g. Compare two UX courses"><select class="text-input" data-field="planTaskDay" aria-label="Day">${["Mon","Tue","Wed","Thu","Fri","Sat","Sun","Next week"].map(d=>`<option ${state.planTaskDay===d?"selected":""}>${d}</option>`).join("")}</select><select class="text-input" data-field="planTaskMinutes" aria-label="Minutes">${["10","15","20","30","45"].map(m=>`<option value="${m}" ${state.planTaskMinutes===m?"selected":""}>${m} min</option>`).join("")}</select><button class="btn secondary" data-action="plan-add-task">Add</button></div><div class="bottom-actions">${btn(`Send plan to ${esc(s.name)}`, "plan-send")}</div>${plans.length?`<p class="eyebrow" style="margin-top:18px">Plans you’ve sent</p>${plans.map(p=>{const t=p.tasks||[],d=t.filter(x=>x.done).length;return `<div class="summary-box" style="margin-top:8px"><span class="tag">${fmtDate(p.created_at)} · ${d}/${t.length} done</span><h3>${esc(p.goal)}</h3><p>${t.map(x=>`${x.done?"✓":"○"} ${esc(x.title)} (${esc(x.day)})`).join("<br>")}</p></div>`;}).join("")}`:""}</div>`;
+        const pathwayBuilder = `<div class="panel"><div class="panel-head"><div><h2>Offer a pathway</h2><p>A route to explore together — not admission advice.</p></div></div><div class="route-grid">${pathwayRoutes.map(r=>`<button class="choice-card ${state.pathRoute===r.key?"selected":""}" data-action="path-route" data-route="${r.key}" aria-pressed="${state.pathRoute===r.key}"><span class="choice-title"><span class="choice-icon">${r.icon}</span>${r.title}</span><span class="choice-copy">${r.detail}</span><span class="choice-mark" aria-hidden="true"></span></button>`).join("")}</div><label class="field-label" for="path-title">Pathway title</label><input id="path-title" class="text-input" data-field="pathTitle" value="${esc(state.pathTitle)}" placeholder="e.g. Design degree programmes in Hong Kong"><label class="field-label" for="path-note">Why this fits · next step</label><textarea id="path-note" class="text-area" data-field="pathNote" placeholder="Connect it to what the student shared and suggest one small next step.">${esc(state.pathNote)}</textarea><label class="field-label" for="path-opp">Suggest an opportunity · optional</label><select id="path-opp" class="text-input" data-field="pathOpportunity"><option value="">None</option>${opportunityExamples.map((o,i)=>`<option value="${i}" ${state.pathOpportunity===String(i)?"selected":""}>${esc(o.kind)} · ${esc(o.title)}</option>`).join("")}</select><div class="bottom-actions">${btn("Offer pathway", "path-send")}</div>${paths.length?`<p class="eyebrow" style="margin-top:18px">Pathways you’ve offered</p>${paths.map(p=>`<div class="list-row"><span class="row-icon">${(pathwayRoutes.find(r=>r.key===p.route)||pathwayRoutes[0]).icon}</span><span><strong>${esc(p.title)}</strong><small>${fmtDate(p.created_at)}${p.opportunity?` · ${esc(p.opportunity)}`:""}</small></span></div>`).join("")}`:""}</div>`;
+        const notesPanel = `<div class="panel"><div class="panel-head"><div><h2>Private mentor notes</h2><p>Only you can see these.</p></div><span class="tag">${notes.length} saved</span></div><label class="sr-only" for="mentor-note">Add a note</label><textarea id="mentor-note" class="text-area note-editor" data-field="mentorDraft" placeholder="e.g. Asked about a low-cost design taster activity.">${esc(state.mentorDraft)}</textarea><div class="bottom-actions">${btn("Save note", "mentor-save-note", "secondary")}</div>${notes.map(n=>`<div class="list-row"><span class="row-icon">✎</span><span><strong>${esc(n.text)}</strong><small>${fmtDate(n.created_at)}</small></span></div>`).join("")}</div>`;
+        return `<div class="workspace"><div class="workspace-head"><div><button class="small-button" data-action="mentor-back">← Back to overview</button><p class="eyebrow" style="margin-top:13px">Student · ${esc(s.stage||"Stage not shared")}</p><h1>${esc(s.name)}</h1><p>Use what ${esc(s.name)} chose to share to prepare a plan and pathways. They’ll see them in the Mentor tab of their app.</p></div><span class="partner-tag">Updated ${fmtDate(s.updated_at)}</span></div>${error}<div class="workspace-columns"><div>${passport}${planBuilder}</div><div>${pathwayBuilder}${notesPanel}</div></div></div>${toastHtml}`;
+      }
+      const roster = state.students.filter(s=>(state.mentorFilter==="all" || (state.mentorFilter==="checkin" && s.requested_checkin) || (state.mentorFilter==="noplan" && !plansFor(s.student_id).length)) && (!q || `${s.name} ${s.stage} ${s.field||""}`.toLowerCase().includes(q)));
+      const rows = roster.length ? roster.map(s=>{ const pct = progressOf(s.student_id); return `<tr><td><span class="student-name"><span class="student-avatar">${esc(initials(s.name))}</span>${esc(s.name)}</span></td><td>${esc(s.stage||"—")}<br><small>${s.share_field?esc(s.field||"Not chosen yet"):"Field not shared"}</small></td><td>${pct===null?"No plan yet":`<span class="mini-progress"><i style="width:${pct}%"></i></span> ${pct}%`}</td><td>${s.requested_checkin?`<span class="status-chip amber">Check-in requested</span>`:`<span class="status-chip green">Sharing</span>`}<br><small>${fmtDate(s.updated_at)}</small></td><td><button class="table-link" data-action="mentor-open" data-id="${esc(s.student_id)}">Open</button></td></tr>`; }).join("") : `<tr><td colspan="5">${state.mentorLoading?"Loading…":state.students.length?"No students match this filter.":"No students are sharing their passport yet."}</td></tr>`;
+      return `<div class="workspace"><div class="workspace-head"><div><p class="eyebrow">Mentor workspace · ${cloud?"Cloud database":"Local mode"}</p><h1>Hi ${esc(me.name || "mentor")}.</h1><p>Students appear here once they choose to share part of their Career Passport. Open a student to make a study plan and offer pathways.</p></div><button class="partner-tag" data-action="mentor-refresh">↻ ${state.mentorLoading?"Loading…":"Refresh"}</button></div>${error}<div class="metric-grid"><div class="metric-card"><span>Students sharing</span><strong>${state.students.length}</strong><small>Opted in to mentors</small></div><div class="metric-card"><span>Check-ins requested</span><strong>${state.students.filter(s=>s.requested_checkin).length}</strong><small>Student asked to talk</small></div><div class="metric-card"><span>Plans sent</span><strong>${state.mentorPlans.length}</strong><small>By you</small></div><div class="metric-card"><span>Pathways offered</span><strong>${state.mentorPathways.length}</strong><small>By you</small></div></div><div class="workspace-columns"><div class="panel"><div class="panel-head"><div><h2>Students sharing with mentors</h2><p>Plan progress comes from plans you sent. It is not a wellbeing or career-fit score.</p></div></div><div class="toolbar-row"><input class="text-input" data-field="mentorSearch" value="${esc(state.mentorSearch)}" placeholder="Search students" aria-label="Search students">${[["all","All"],["checkin","Check-in requested"],["noplan","No plan yet"]].map(([key,label])=>`<button class="filter-button ${state.mentorFilter===key?"active":""}" data-action="mentor-filter" data-filter="${key}">${label}</button>`).join("")}</div><div class="table-scroll"><table class="student-table"><thead><tr><th>Student</th><th>Stage / field</th><th>Plan progress</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div><div><div class="panel"><div class="panel-head"><div><h2>Conversation prompt</h2><p>Start with the student's own goals.</p></div></div><div class="summary-box"><span class="tag">ASK, DON’T ASSUME</span><h3>Opening question</h3><p>“What felt manageable this week, and what would you like help with next?”</p></div><div class="callout">Escalate personal or safeguarding concerns through your organisation’s human support process.</div></div><div class="panel"><div class="panel-head"><div><h2>Student-controlled sharing</h2><p>Students decide what you see.</p></div></div><p class="microcopy">Field and story, skills, decisions and reflection are each shared separately. Unshared sections stay hidden in the database, not just in this view.</p></div></div></div></div>${toastHtml}`;
+    }
+
+    // ---------- Rendering & events ----------
+    function render() {
+      persistUi();
+      const mentorMode = me?.role === "mentor";
+      document.getElementById("studio-grid").classList.toggle("mentor-active", mentorMode);
+      document.getElementById("mentor-view").hidden = !mentorMode;
+      document.getElementById("student-view").hidden = mentorMode;
+      document.getElementById("role-current").textContent = me ? `${me.role==="mentor"?"Mentor":"Student"} · ${me.name || me.email}` : "Not signed in";
+      document.getElementById("sign-out").hidden = !me;
+      document.getElementById("mode-label").textContent = cloud ? "Cloud sync on · Hong Kong" : "Local mode · Hong Kong";
+      if (mentorMode) mentorApp.innerHTML = mentorBody();
+      else app.innerHTML = `${screenBody()}${state.toast?`<div class="toast" role="status">${esc(state.toast)}</div>`:""}${modalBody()}`;
+      document.getElementById("product-note").innerHTML = noteForScreen();
+      if (me && !mentorMode && state.screen === "story") ensureStoryImage();
+      const langBtn = document.getElementById("lang-toggle");
+      langBtn.innerHTML = LANG === "zh" ? "翻譯 <small>English</small>" : "Translation <small>中文</small>";
+      langBtn.setAttribute("aria-pressed", String(LANG === "zh"));
+      langBtn.title = LANG === "zh" ? "Switch to English" : "切換至繁體中文";
+      document.documentElement.lang = LANG === "zh" ? "zh-HK" : "en";
+      window.CARIE_I18N?.apply(document.body, LANG);
+      scheduleToastClear();
+    }
+    // Messages can be set directly on state.toast or via toast(); either way they clear themselves.
+    let toastTimer = null, toastShown = "";
+    function scheduleToastClear() {
+      if (!state.toast || state.toast === toastShown) return;
+      toastShown = state.toast; clearTimeout(toastTimer);
+      const message = state.toast;
+      toastTimer = setTimeout(() => { if (state.toast === message) { state.toast = ""; render(); } toastShown = ""; }, 2600);
+    }
+    function toast(message) { state.toast=message; render(); }
+    function goHome() { state.screen="home"; state.showModal=""; }
+    const PASSPORT_ACTIONS = new Set(["field-continue","energy","finish-reflection","confirm-delete","toggle-career-share","toggle-skills-share","toggle-decisions-share","toggle-reflection","request-checkin"]);
+    async function handleAction(action, el, e) {
+      if(action==="toggle-lang"){LANG=LANG==="zh"?"en":"zh";store.set("carie-lang",LANG);}
+      else if(action==="auth-role"){state.authRole=el.dataset.role==="mentor"?"mentor":"student";state.authError="";}
+      else if(action==="auth-google"){
+        state.authBusy=true;state.authError="";render();
+        try{await db.signInWithGoogle(state.authRole);return;}   // the browser now goes to Google
+        catch(err){state.authBusy=false;state.authError=/provider is not enabled/i.test(err.message)?"Google sign-in isn’t switched on yet.":err.message;}
+      }
+      else if(action==="auth-send"){
+        const email=state.authEmail.trim().toLowerCase();
+        if(!EMAIL_RE.test(email)){state.authError="Input a valid email address to continue.";}
+        else{
+          // Students give their name in onboarding step 1; until then the email prefix stands in.
+          const mentor=state.authRole==="mentor";
+          const meta={role:state.authRole,name:((mentor&&state.authName.trim())||email.split("@")[0]).slice(0,80),stage:"",organization:mentor?state.authOrg.trim().slice(0,120):""};
+          if(!cloud){await enterApp(db.localRegister(email,meta));return;}
+          state.authBusy=true;state.authError="";render();
+          try{await db.sendCode(email,meta);state.authEmail=email;state.authStep="code";state.authCode="";}
+          catch(err){
+            // Supabase reports mail-server failures as e.g. "Error sending magic link email".
+            state.authError=/error sending .*email/i.test(err.message)
+              ?"We couldn’t send the email right now. Please try again in a few minutes."
+              :err.message;
+          }
+          state.authBusy=false;
+        }
+      }
+      else if(action==="auth-verify"){
+        const code=state.authCode.replace(/\s/g,"");
+        if(!code){state.authError="Enter the code from your email.";}
+        else{
+          state.authBusy=true;state.authError="";render();
+          try{await enterApp(await db.verifyCode(state.authEmail,code));return;}
+          catch(err){state.authError=err.message;state.authBusy=false;}
+        }
+      }
+      else if(action==="auth-back"){state.authStep="email";state.authError="";state.authCode="";}
+      else if(action==="sign-out"){
+        clearTimeout(syncTimer);
+        try{await db.signOut();}catch{}
+        me=null;state=initialState();Object.keys(storyImages).forEach(k=>delete storyImages[k]);
+      }
+      else if(action==="landing-start"){state.screen="register";}
+      else if(action==="to-avatar"){
+        const name=state.name.trim().slice(0,30); if(!name)return;
+        state.name=name; state.screen="avatar"; me.name=name;
+        db.updateName(name).catch(err=>console.warn("name:",err.message));
+      }
+      else if(action==="to-start"){state.screen="start";}
+      else if(action==="back-welcome"){state.screen="welcome";}
+      else if(action==="back-avatar"){state.screen="avatar";}
+      else if(action==="explore-careers"||action==="to-selection"){state.screen="selection";state.jobError="";}
+      else if(action==="start-quiz"){state.screen="quiz";state.quizIndex=0;state.answers=[];}
+      else if(action==="job-search"){
+        const job=state.jobQuery.trim();
+        if(!job){state.jobError="Type a job first.";}
+        else{state.jobError="";await startStory(job);return;}
+      }
+      else if(action==="pick-industry"){
+        const ind=INDUSTRIES.find(i=>i.key===el.dataset.key)||INDUSTRIES[0];
+        state.industry=ind.key;state.pickField=ind.fields.includes(state.field)?state.field:ind.fields[0];state.screen="industry";
+      }
+      else if(action==="pick-field"){state.pickField=el.dataset.name||state.pickField;}
+      else if(action==="field-continue"){if(!state.pickField)return;state.field=state.pickField;goHome();}
+      else if(action==="pick-related"){state.relatedPick=Number(el.dataset.index);}
+      else if(action==="related-continue"){const r=state.related[state.relatedPick];if(!r)return;await startStory(r.title);return;}
+      else if(action==="quiz-answer"){state.answers[state.quizIndex]=Number(el.dataset.index);}
+      else if(action==="next-quiz"){
+        if(state.answers[state.quizIndex]===undefined)return;
+        if(state.quizIndex<quiz.length-1)state.quizIndex++;
+        else{state.recs=recommendedJobs();state.pickField=state.recs[0];state.screen="suggestions";}
+      }
+      else if(action==="back-quiz"){if(state.quizIndex>0)state.quizIndex--;else state.screen="start";}
+      else if(action==="ai-search"){
+        const query=state.aiQuery.trim();
+        if(!query){state.aiError="Type a question first.";}
+        else{
+          state.aiBusy=true;state.aiError="";render();
+          try{const r=await db.ai("search",{query:query.slice(0,500),stage:state.schoolStage||"",field:state.field||""});state.aiAnswer=r.answer||"No answer returned.";}
+          catch(err){state.aiError=err.message;state.aiAnswer="";}
+          state.aiBusy=false;
+        }
+      }
+      else if(action==="begin-story"){
+        if(state.inProgress&&state.story&&state.storyRole===state.field){state.screen="story";}
+        else{await startStory(state.field);return;}
+      }
+      else if(action==="story-retry"){await startStory(state.storyRole||state.field);return;}
+      else if(action==="story-sample"){await startStory("UX design");return;}
+      else if(action==="to-decision"){state.storyStage="decision";state.selected=-1;}
+      else if(action==="story-choice"){state.selected=[...app.querySelectorAll('[data-action="story-choice"]')].indexOf(el);}
+      else if(action==="word-help"){state.showModal="word";}
+      else if(action==="retry-image"){delete storyImages[state.storyIndex];}
+      else if(action==="choose-story"){if(state.selected<0)return;state.decisions[state.storyIndex]=state.selected;state.storyStage="outcome";}
+      else if(action==="next-scene"){state.storyIndex++;state.storyStage="intro";state.selected=-1;}
+      else if(action==="to-recap"){finishPath();}
+      else if(action==="to-skills"){state.screen="skills";}
+      else if(action==="to-reflection"){state.screen="reflection";}
+      else if(action==="energy"){state.energy=el.dataset.value||"";}
+      else if(action==="finish-reflection"){state.screen="next";}
+      else if(action==="pause"){
+        // On the loading screen there is nothing to save yet: just go home (the story keeps loading).
+        if(state.screen==="loading"){goHome();}
+        else state.showModal="pause";
+      }
+      else if(action==="close-modal"){state.showModal="";}
+      else if(action==="verify-cancel"){storyRequest++;state.showModal="";}
+      else if(action==="save-leave"){goHome();}
+      else if(action==="delete-story"){state.showModal="delete";}
+      else if(action==="confirm-delete"){Object.assign(state,{savedStory:null,saved:false,energy:"",reflection:"",showModal:""});state.toast="Story deleted from your passport.";}
+      else if(action==="backdrop"){if(e?.target!==el)return;state.showModal="";}
+      else if(action==="nav-home"){state.screen="home";state.showModal="";}
+      else if(action==="nav-passport"){state.screen="passport";state.showModal="";}
+      else if(action==="nav-mentor"){state.screen="mentor";state.showModal="";loadStudentInbox();}
+      else if(action==="plan-task-toggle"){
+        const plan=state.myPlans.find(p=>p.id===el.dataset.plan), i=Number(el.dataset.index), task=plan?.tasks?.[i];
+        if(!task)return;
+        task.done=!task.done;render();
+        try{await db.setTaskDone(plan.id,i,task.done);}catch(err){task.done=!task.done;toast(`Couldn’t update the task: ${err.message}`);}
+        return;
+      }
+      else if(action==="request-checkin"){state.requestedCheckIn=!state.requestedCheckIn;state.toast=state.requestedCheckIn?"Mentors can now see you asked for a check-in.":"Check-in request removed.";}
+      else if(action==="toggle-career-share"){state.sharedCareer=!state.sharedCareer;}
+      else if(action==="toggle-skills-share"){state.shareSkills=!state.shareSkills;}
+      else if(action==="toggle-decisions-share"){state.shareDecisions=!state.shareDecisions;}
+      else if(action==="toggle-reflection"){state.includeReflection=!state.includeReflection;}
+      else if(action==="open-share"){state.shareName=state.shareName||state.name;state.showModal="share";}
+      else if(action==="copy-summary"){
+        const sections=[];
+        const s=view(state.savedStory);
+        if(state.sharedCareer)sections.push(`Exploring: ${state.field||"Not chosen yet"}${s?` · Finished “${s.storyTitle}”`:""}`);
+        if(state.shareSkills)sections.push(`Skills explored: ${skillList().map(k=>k.skill).join(" · ")||"None yet"}`);
+        if(state.shareDecisions)sections.push(`Story decisions: ${s?.path.map(p=>p.choice).join(" · ")||"None yet"}`);
+        if(state.includeReflection)sections.push(`How it felt: ${state.energy||"Not noted"}${state.reflection?` — ${state.reflection}`:""}`);
+        const text=`${state.shareName||state.name||"Student"}${sections.length?`\n${sections.join("\n")}`:"\nNo sections selected."}`;
+        try { await navigator.clipboard.writeText(text); state.showModal=""; render(); toast("Summary copied"); return; } catch { state.toast="Copy is unavailable here; your preview is still ready."; state.showModal=""; }
+      }
+      else if(action==="mentor-refresh"){await mentorRefresh();return;}
+      else if(action==="mentor-filter"){state.mentorFilter=el.dataset.filter||"all";}
+      else if(action==="mentor-open"){state.mentorStudentId=el.dataset.id||"";state.mentorView="detail";state.mentorDraft="";state.planGoal="";state.planTasks=[];state.planTaskDraft="";state.pathTitle="";state.pathNote="";state.pathOpportunity="";window.scrollTo(0,0);}
+      else if(action==="mentor-back"){state.mentorView="overview";}
+      else if(action==="plan-add-task"){
+        const title=state.planTaskDraft.trim();
+        if(!title){toast("Write a task first.");return;}
+        state.planTasks.push({title:title.slice(0,120),day:state.planTaskDay||"Mon",minutes:Number(state.planTaskMinutes)||20});state.planTaskDraft="";
+      }
+      else if(action==="plan-remove-task"){state.planTasks.splice(Number(el.dataset.index),1);}
+      else if(action==="plan-send"){
+        const draft=state.planTaskDraft.trim();
+        if(draft){state.planTasks.push({title:draft.slice(0,120),day:state.planTaskDay||"Mon",minutes:Number(state.planTaskMinutes)||20});state.planTaskDraft="";}
+        if(!state.planTasks.length){toast("Add at least one task to the plan.");return;}
+        try{
+          await db.insert("plans",{student_id:state.mentorStudentId,goal:(state.planGoal.trim()||"Study plan").slice(0,160),tasks:state.planTasks.map(t=>({...t,done:false}))});
+          state.planGoal="";state.planTasks=[];await mentorRefresh();toast("Plan sent to the student.");
+        }catch(err){toast(`Couldn’t send the plan: ${err.message}`);}
+        return;
+      }
+      else if(action==="path-route"){state.pathRoute=el.dataset.route||"university";}
+      else if(action==="path-send"){
+        const route=pathwayRoutes.find(r=>r.key===state.pathRoute)||pathwayRoutes[0];
+        const opp=opportunityExamples[Number(state.pathOpportunity)];
+        try{
+          await db.insert("pathways",{student_id:state.mentorStudentId,route:route.key,title:(state.pathTitle.trim()||route.title).slice(0,160),note:state.pathNote.trim().slice(0,1000),opportunity:state.pathOpportunity!==""&&opp?`${opp.title} (${opp.kind}) — ${opp.next}`:""});
+          state.pathTitle="";state.pathNote="";state.pathOpportunity="";await mentorRefresh();toast("Pathway offered to the student.");
+        }catch(err){toast(`Couldn’t offer the pathway: ${err.message}`);}
+        return;
+      }
+      else if(action==="mentor-save-note"){
+        const note=state.mentorDraft.trim();
+        if(!note){toast("Write a short note first.");return;}
+        try{await db.insert("notes",{student_id:state.mentorStudentId,text:note.slice(0,1000)});state.mentorDraft="";await mentorRefresh();toast("Note saved.");}
+        catch(err){toast(`Couldn’t save the note: ${err.message}`);}
+        return;
+      }
+      if(PASSPORT_ACTIONS.has(action)) syncPassport();
+      render();
+    }
+    document.addEventListener("input", e=>{
+      const field=e.target.dataset.field; if(!field)return;
+      state[field]=e.target.value;
+      if(field==="name") { const b=app.querySelector('[data-action="to-avatar"]'); if(b)b.disabled=!state.name.trim(); }
+      if(field==="reflection") syncPassport();
+      persistUi();
+    });
+    document.addEventListener("change", e=>{
+      if(e.target.dataset.field) {
+        state[e.target.dataset.field]=e.target.value;
+        if(["ethnicity","gender","mentorSearch"].includes(e.target.dataset.field)) render();
+      }
+    });
+    document.addEventListener("keydown", e=>{
+      if(e.key!=="Enter") return;
+      const action={"ai-query":"ai-search","job-query":"job-search","auth-email":"auth-send","auth-name":"auth-send","auth-code":"auth-verify","plan-task":"plan-add-task","nickname":"to-avatar"}[e.target.id];
+      if(action){ e.preventDefault(); handleAction(action, e.target, e); }
+    });
+    document.addEventListener("click", e=>{
+      const el=e.target.closest("[data-action]"); if(!el)return;
+      handleAction(el.dataset.action, el, e);
+    });
+    if ("serviceWorker" in navigator && window.isSecureContext) {
+      window.addEventListener("load", ()=>navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(()=>{}));
+    }
+    (async ()=>{
+      store.remove("carie-demo-state");
+      render();
+      let profile = null;
+      try { profile = await db.restore(); } catch (err) { state.authError = `Couldn’t restore your session: ${err.message}`; }
+      booting = false;
+      if (profile) await enterApp(profile); else render();
+      if (cloud) sb.auth.onAuthStateChange((event, session)=>{
+        if(event==="SIGNED_OUT" && me){ me=null; state=initialState(); render(); }
+        // Signed in from the email link (possibly in another tab): open the app here too.
+        // Deferred because Supabase calls must not run inside this callback.
+        if(event==="SIGNED_IN" && !me && session) setTimeout(async ()=>{ if(me) return; try { await enterApp(await db.loadProfile(session.user.id)); } catch (err) { state.authError=err.message; render(); } }, 0);
+      });
+    })();
+  </script>
+</body>
+</html>

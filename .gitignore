@@ -1,0 +1,12 @@
+# Build output from make-publish.ps1 (rebuilt from the source files)
+publish/
+carie-ai-site.zip
+
+# Local Claude Code settings
+.claude/
+
+# Supabase CLI local state and any local secrets
+supabase/.temp/
+supabase/.branches/
+.env
+.env.*

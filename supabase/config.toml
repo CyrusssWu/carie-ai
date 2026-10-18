@@ -1,0 +1,6 @@
+project_id = "luomvhvhfisigawwundv"
+
+# The ai function checks the caller's sign-in itself (see functions/ai/index.ts),
+# which also works with the new publishable / JWT signing keys.
+[functions.ai]
+verify_jwt = false
